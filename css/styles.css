@@ -1,3 +1,19 @@
 body {
-    background-color: darkgrey;
+    font-family: 'Press Start 2P', cursive;
+    color: #FFF;
+    background-color: #444;
+}
+
+#coffeecup {
+    width: 128px;
+    height: 128px;
+}
+
+#oscilloscope {
+    height: 100px;
+    width: 100px;
+}
+
+#osc_core {
+    width: 303px;
 }

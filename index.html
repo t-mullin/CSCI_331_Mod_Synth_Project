@@ -1,13 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <meta charset="UTF-8">
         <title>Modular Synth</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">     
         <link href="css/styles.css" rel="stylesheet">
     </head>
 
     <body>
         <p>Placeholder text</p>
-        <img src="img/Coffee32.gif" alt="coffee cup with steam"/>
+        <img id="coffeecup" src="img/Coffee32.gif" alt="coffee cup with steam"/>
+        <div id="osc_core">
+            <canvas id="oscilloscope"></canvas>
+            <input id="freq_square" type="range" min="0" max="440" value="220" step="10">
+            <input id="freq_saw" type="range" min="0" max="440" value="0" step="10">
+            <input id="freq_sin" type="range" min="0" max="440" value="0" step="10">
+            <button id="play" type="button">Play</button>
+            <button id="pause" type="button">Pause</button>
+        </div>
     </body>
-
+    <footer><script src="js/audio.js"></script></footer>
 </html>
