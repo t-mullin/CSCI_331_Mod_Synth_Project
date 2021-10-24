@@ -10,13 +10,26 @@
     </head>
 
     <body>
-        <p>Placeholder text</p>
-        <img id="coffeecup" src="img/Coffee32.gif" alt="coffee cup with steam"/>
-        <div id="osc_core">
-            <canvas id="oscilloscope"></canvas>
-            <input id="freq_square" type="range" min="0" max="440" value="220" step="10">
-            <input id="freq_saw" type="range" min="0" max="440" value="0" step="10">
-            <input id="freq_sin" type="range" min="0" max="440" value="0" step="10">
+        <p>Module Rack</p>
+        <div id="module_rack">
+
+        </div>
+        <div id="control_pannel">
+            <img id="coffeecup" src="img/Coffee32.gif" alt="coffee cup with steam"/>
+            <h2>Control Pannel</h2>
+
+            <label for="add_module_select">Add Modules</label>
+            <select id="add_module_select" name="add_module_select">
+                <option value="oscillators">Oscillator Pannel</option>
+                <option value="test">test1</option>
+            </select>
+            <button id="add_module" type="button">Add Module</button>
+            
+            <label for="remove_module_select">Remove Modules</label>
+            <select id="remove_module_select" name="remove_module_select">
+            </select>
+            <button id="remove_module" type="button">Remove Module</button>
+            
             <button id="play" type="button">Play</button>
             <button id="pause" type="button">Pause</button>
         </div>
