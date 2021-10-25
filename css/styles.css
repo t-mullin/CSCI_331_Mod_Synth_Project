@@ -13,7 +13,7 @@ body {
     height: 64px;
 }
 
-#oscilloscope {
+canvas[id=oscilloscope] {
     height: 100px;
     width: 100px;
 }

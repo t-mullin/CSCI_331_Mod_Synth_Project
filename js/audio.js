@@ -53,6 +53,9 @@ function add_osc_core() {
     oscSine.type = 'sine';
     oscSine.frequency.value = 0;
 
+    oscSine.start(0);
+    oscSine.connect(audioContext.destination);
+
     //adding the oscillator module to the global list of modules
     //NOTE: may need to change this to include the input/output to make connecting modules
     //      easier
