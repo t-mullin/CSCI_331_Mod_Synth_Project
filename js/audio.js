@@ -139,7 +139,22 @@ function add_lfo() {
 }
 
 function remove_lfo(selector) {
-    
+        //gets the selected option from the selector element
+        let module_name = selector.selectedOptions[0].innerHTML;
+
+        //gets the number from the selected element
+        let module_num = module_name.match(/(\d+)/);
+        //gets the actual html by it's id
+        let module = document.getElementById(`LFO_${module_num[0]}`);
+        //gets the parent element
+        let rack = document.getElementById('module_rack');
+        //removes the selected child element
+        rack.removeChild(module);
+        //removes the option from the selector
+        selector.selectedOptions[0].parentNode.removeChild(selector.selectedOptions[0]);
+        //removes the module from the global list of modules
+        let index = rackArray.findIndex(({id}) => id === `LFO_${module_num[0]}`);
+        rackArray.splice(index, 1);
 }
 
 //sets up an event listener on the addButton
@@ -168,6 +183,9 @@ removeButton.addEventListener('click', () => {
         case 'oscillators':
             remove_osc_core(selector);
             break;
+        case 'lfo':
+                remove_lfo(selector);
+                break;
         default:
             console.log(selector.value);
     }
