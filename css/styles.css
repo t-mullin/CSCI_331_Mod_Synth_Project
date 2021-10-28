@@ -24,10 +24,32 @@ div[id^=osc_core] {
     height: 350px;
     width: 175px;
     background-color: darkolivegreen;
+    border-style: solid;
 }
 
 input[id^=freq_]{
     display: block;
     float: none;
     margin: 10px 7px;
+}
+
+#module_rack {
+    max-width: 1665px;
+}
+
+#control_pannel {
+    height: 100%;
+    width: 175px;
+    text-align: center;
+    float: right;
+    padding: 20px;
+    margin-top: 35px;
+    margin-right: 15px;
+    border-style: solid;
+    position: sticky;
+    top: 0;
+}
+
+#add_module{
+    margin-bottom: 25px;
 }
