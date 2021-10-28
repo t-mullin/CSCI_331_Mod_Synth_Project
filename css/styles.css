@@ -38,7 +38,6 @@ input[id^=freq_]{
 }
 
 #control_pannel {
-    height: 100%;
     width: 175px;
     text-align: center;
     float: right;
@@ -46,8 +45,12 @@ input[id^=freq_]{
     margin-top: 35px;
     margin-right: 15px;
     border-style: solid;
+    /*
+    TODO: position sticky
     position: sticky;
+    z-index: 1;
     top: 0;
+    */
 }
 
 #add_module{
