@@ -13,6 +13,7 @@ const rackArray = [];
 //const scopeCtx = scope.getContext("2d");
 const audioContext = new AudioContext();
 
+
 //let osc_scope = audioContext.createAnalyser();
 //osc_scope.fftSize = 2048;
 //let scopeBuffer = osc_scope.frequencyBinCount;
@@ -210,3 +211,23 @@ function drawScope() {
     scopeCtx.stroke();
 }
 //drawScope();
+
+var distortion = audioContext.createWaveShaper();
+
+function distortionCurve(amount) {
+    var k = typeof amount === 'number' ? amount : 0,
+        n_samples = 44100,
+        curve = new Float32Array(n_samples),
+        degree = Math.PI / 180,
+        i = 0,
+        x;
+    for ( ; i < n_samples; ++i) {
+        x = i * 2 / n_samples - 1;
+        curve[i] = (3 + k) * x * 20 * degree / (Math.PI + k * Math.abs(x));
+    }
+
+    return curve;
+};
+
+// distortion.curve = distortionCurve(400);
+// distortion.oversample = '4x';
