@@ -3,14 +3,31 @@ html {
 }
 
 body {
+    margin: 0px;
     font-family: 'Press Start 2P', cursive;
     color: #FFF;
     background-color: #444;
+    display: grid;
+    grid-template-areas: 'rack control';
+    grid-template-columns: auto 400px;
+
 }
 
 #coffeecup {
     width: 64px;
     height: 64px;
+}
+
+#module_rack {
+    grid-area: rack;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+#control_pannel {
+    grid-area:  control;
+    height: 100vh;
+    position:sticky;
 }
 
 canvas[id=oscilloscope] {
