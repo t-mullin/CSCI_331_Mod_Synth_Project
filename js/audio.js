@@ -1,13 +1,11 @@
 //file for the Web Audio API integration
 const AudioContext = window.AudioContext || window.webkitAudioContext;
-//const freqSquare = document.getElementById('freq_square');
-//const freqSaw = document.getElementById('freq_saw');
-//const freqSin = document.getElementById('freq_sin');
 const playButton = document.getElementById('play');
 const pauseButton = document.getElementById('pause');
 const addButton = document.getElementById('add_module');
 const removeButton = document.getElementById('remove_module');
 let numOsc = 0;
+let numLFO = 0;
 const rackArray = [];
 //const scope = document.getElementById('oscilloscope');
 //const scopeCtx = scope.getContext("2d");
@@ -32,6 +30,7 @@ function add_osc_core() {
     //insert the html to make an oscillator module, each is unique due to using a template literal
     rack.insertAdjacentHTML('beforeend', 
         `<div id="osc_core_${numOsc}">
+        <h3>Osc Core ${numOsc}</h3>
         <canvas id="oscilloscope"></canvas>
         <input id="freq_square_${numOsc}" type="range" min="0" max="440" value="0" step="10">
         <input id="freq_saw_${numOsc}" type="range" min="0" max="440" value="0" step="10">
@@ -100,6 +99,49 @@ function remove_osc_core(selector) {
     rackArray.splice(index, 1);
 }
 
+function add_lfo() {
+    numLFO++;
+    let rack = document.getElementById('module_rack'); //gets the div that is going to contain the modules
+
+    //insert the html to make an oscillator module, each is unique due to using a template literal
+    rack.insertAdjacentHTML('beforeend', 
+        `<div id="LFO_${numLFO}">
+        <h3>LFO ${numLFO}</h3>
+        <input id="freq_lfo_${numLFO}" type="range" min="0" max="220" value="0" step="0.1">
+        <label for="add_LFO">LFO Type:</label>
+        <select id="sel_lfo_${numLFO}" name="add_LFO">
+            <option value='square'>Square</option>
+            <option value='sine'>Sine</option>
+            <option value='sawtooth'>Sawtooth</option>
+            <option value='triangle'>Triangle</option>
+        </select>
+        </div>`
+    );
+    //add the module to the selector that selects the module for removal
+    let remove_option = document.getElementById('remove_module_select');
+    remove_option.insertAdjacentHTML('beforeend', `<option value="lfo">LFO ${numLFO}</option>`);
+
+    //setting up the oscillatorNodes
+    let lfo = audioContext.createOscillator();
+    lfo.type = 'square';
+    lfo.frequency.value = 0;
+
+    document.getElementById(`sel_lfo_${numLFO}`).addEventListener('change', (e) => {
+        let lfo_type = e.target.value;
+        lfo.type = lfo_type;
+    });
+
+    document.getElementById(`freq_lfo_${numLFO}`).addEventListener('input', (e) => {
+        let newFreq = Number(e.target.value);
+        lfo.frequency.setValueAtTime(newFreq, audioContext.currentTime);
+    });
+
+}
+
+function remove_lfo(selector) {
+    
+}
+
 //sets up an event listener on the addButton
 addButton.addEventListener('click', () => {
     //gets what module that the end user wants to add
@@ -108,6 +150,9 @@ addButton.addEventListener('click', () => {
     switch (selector.value) {
         case 'oscillators':
             add_osc_core();
+            break;
+        case 'lfo':
+            add_lfo();
             break;
         default:
             console.log(selector.value);

@@ -31,3 +31,11 @@ input[id^=freq_]{
     float: none;
     margin: 10px 7px;
 }
+
+div[id^=LFO] {
+    display: block;
+    float: left;
+    height: 350px;
+    width: 175px;
+    background-color: blueviolet;
+}
