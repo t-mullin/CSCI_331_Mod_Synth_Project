@@ -31,7 +31,6 @@ function add_osc_core() {
     rack.insertAdjacentHTML('beforeend', 
         `<div id="osc_core_${numOsc}">
         <h3>Osc Core ${numOsc}</h3>
-        <canvas id="oscilloscope"></canvas>
         <input id="freq_square_${numOsc}" type="range" min="0" max="440" value="0" step="10">
         <input id="freq_saw_${numOsc}" type="range" min="0" max="440" value="0" step="10">
         <input id="freq_sin_${numOsc}" type="range" min="0" max="440" value="0" step="10">
@@ -70,7 +69,6 @@ function add_osc_core() {
     document.getElementById(`freq_saw_${numOsc}`).addEventListener('input', (e) => {
         let newFreq = Number(e.target.value);
         oscSaw.frequency.setValueAtTime(newFreq, audioContext.currentTime);
-        console.log(oscSaw.frequency.value)
     });
 
     document.getElementById(`freq_sin_${numOsc}`).addEventListener('input', (e) => {
@@ -145,7 +143,6 @@ function add_lfo() {
 function remove_lfo(selector) {
         //gets the selected option from the selector element
         let module_name = selector.selectedOptions[0].innerHTML;
-
         //gets the number from the selected element
         let module_num = module_name.match(/(\d+)/);
         //gets the actual html by it's id
@@ -188,13 +185,24 @@ removeButton.addEventListener('click', () => {
             remove_osc_core(selector);
             break;
         case 'lfo':
-                remove_lfo(selector);
-                break;
+            remove_lfo(selector);
+            break;
         default:
             console.log(selector.value);
     }
 });
 
+playButton.addEventListener('click', () => {
+    if(audioContext.state === 'suspended') {
+        //gain.connect(audioContext.destination);
+        audioContext.resume();
+    }
+}); 
+
+pauseButton.addEventListener('click', () => {
+    audioContext.suspend();
+    //gain.disconnect(audioContext.destination);
+}); 
 
 function setup() {
     /*
@@ -238,17 +246,6 @@ function setup() {
         //console.log(oscSquare.frequency);
     }); 
 
-    playButton.addEventListener('click', () => {
-        if(audioContext.state === 'suspended') {
-            gain.connect(audioContext.destination);
-            audioContext.resume();
-        }
-    }); 
-
-    pauseButton.addEventListener('click', () => {
-        audioContext.suspend();
-        gain.disconnect(audioContext.destination);
-    }); 
 }
 
 //need to replace this as it is direcly from https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
