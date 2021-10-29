@@ -33,6 +33,23 @@ input[id^=freq_]{
     margin: 10px 7px;
 }
 
+div[id^=distortion_] {
+    display: block;
+    float: left;
+    height: 350px;
+    width: 175px;
+    background-color: darkolivegreen;
+    border-style: solid;
+}
+
+input[id^=dist_ratio_] {
+    margin-top: 140px;
+}
+
+label[id^=dist_ratio_] {
+    margin-left: 5px;
+}
+
 #module_rack {
     max-width: 1665px;
 }

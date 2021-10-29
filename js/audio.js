@@ -110,6 +110,9 @@ addButton.addEventListener('click', () => {
         case 'oscillators':
             add_osc_core();
             break;
+        case 'distortions':
+            add_distortion_mod();
+            break;
         default:
             console.log(selector.value);
     }
@@ -123,6 +126,9 @@ removeButton.addEventListener('click', () => {
     switch (selector.value) {
         case 'oscillators':
             remove_osc_core(selector);
+            break;
+        case 'distortions':
+            remove_distortion_mod(selector);
             break;
         default:
             console.log(selector.value);
@@ -212,9 +218,41 @@ function drawScope() {
 }
 //drawScope();
 
-var distortion = audioContext.createWaveShaper();
 
-function distortionCurve(amount) {
+let numDist = 0;
+
+function add_distortion_mod() {
+    numDist++;
+
+    let rack = document.getElementById('module_rack');
+
+    rack.insertAdjacentHTML('beforeend',
+        `<div id="distortion_${numDist}">
+        <label id="dist_ratio_${numDist}" for="dist_ratio_${numDist}">Distortion</label>
+        <input id="dist_ratio_${numDist}" type="range" min="0" max="440" value="0" step="10">
+        </div>`
+    );
+
+    let remove_mod = document.getElementById('remove_module_select');
+    remove_mod.insertAdjacentHTML('beforeend', `<option value="distortions">Distortion Pannel ${numDist}</option>`);
+    
+    //let distortions = {id: `distortion_${numDist}`, dist: distortionSquare}
+    //rackArray.push(distortions)
+
+}
+
+function remove_distortion_mod(selector) {
+    let mod_name = selector.selectedOptions[0].innerHTML;
+    let mod_num = mod_name.match(/(\d+)/);
+    let mod = document.getElementById(`distortion_${mod_num[0]}`);
+    let rack = document.getElementById('module_rack');
+    rack.removeChild(mod);
+    selector.selectedOptions[0].parentNode.removeChild(selector.selectedOptions[0]);
+    let index = rackArray.findIndex(({id}) => id === `distortion_${mod_num[0]}`);
+    rackArray.splice(index, 1);
+}
+
+function distortion_curve(amount) {
     var k = typeof amount === 'number' ? amount : 0,
         n_samples = 44100,
         curve = new Float32Array(n_samples),
@@ -229,5 +267,5 @@ function distortionCurve(amount) {
     return curve;
 };
 
-// distortion.curve = distortionCurve(400);
+// distortion.curve = distortion_curve(400);
 // distortion.oversample = '4x';
