@@ -51,7 +51,8 @@ label[id^=dist_ratio_] {
 }
 
 #module_rack {
-    max-width: 1665px;
+    max-width: 87%;
+    display: inline-block;
 }
 
 #control_pannel {
