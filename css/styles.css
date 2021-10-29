@@ -13,9 +13,13 @@ body {
 
 }
 
+h2 {
+    display: inline-block;
+}
+
 #coffeecup {
-    width: 64px;
-    height: 64px;
+    width: 32px;
+    height: 32px;
 }
 
 #module_rack {
@@ -55,4 +59,10 @@ div[id^=LFO] {
     height: 350px;
     width: 175px;
     background-color: blueviolet;
+}
+
+label {
+    width: 100%;
+    margin: 5px 0px;
+    display: block;
 }

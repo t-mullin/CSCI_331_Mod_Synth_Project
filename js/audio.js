@@ -58,7 +58,7 @@ function add_osc_core() {
     //adding the oscillator module to the global list of modules
     //NOTE: may need to change this to include the input/output to make connecting modules
     //      easier
-    let oscillators = {id: `osc_core_${numOsc}`, osc1: oscSquare, osc2: oscSaw, osc3: oscSine}
+    let oscillators = {id: `osc_core_${numOsc}`, osc1: oscSquare, osc2: oscSaw, osc3: oscSine};
     rackArray.push(oscillators);
     
     //setting up event listeners for the frequency sliders
@@ -70,6 +70,7 @@ function add_osc_core() {
     document.getElementById(`freq_saw_${numOsc}`).addEventListener('input', (e) => {
         let newFreq = Number(e.target.value);
         oscSaw.frequency.setValueAtTime(newFreq, audioContext.currentTime);
+        console.log(oscSaw.frequency.value)
     });
 
     document.getElementById(`freq_sin_${numOsc}`).addEventListener('input', (e) => {
@@ -125,6 +126,9 @@ function add_lfo() {
     let lfo = audioContext.createOscillator();
     lfo.type = 'square';
     lfo.frequency.value = 0;
+
+    let lfos = {id: `LFO_${numLFO}`, lfo1: lfo};
+    rackArray.push(lfos);
 
     document.getElementById(`sel_lfo_${numLFO}`).addEventListener('change', (e) => {
         let lfo_type = e.target.value;
