@@ -178,18 +178,20 @@ function setup() {
         //console.log(oscSquare.frequency);
     }); 
 
-    playButton.addEventListener('click', () => {
-        if(audioContext.state === 'suspended') {
-            gain.connect(audioContext.destination);
-            audioContext.resume();
-        }
-    }); 
 
-    pauseButton.addEventListener('click', () => {
-        audioContext.suspend();
-        gain.disconnect(audioContext.destination);
-    }); 
 }
+
+playButton.addEventListener('click', () => {
+    if(audioContext.state === 'suspended') {
+        //gain.connect(audioContext.destination);
+        audioContext.resume();
+    }
+}); 
+
+pauseButton.addEventListener('click', () => {
+    audioContext.suspend();
+    //gain.disconnect(audioContext.destination);
+}); 
 
 //need to replace this as it is direcly from https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
 //used to debug
@@ -236,18 +238,28 @@ function add_distortion_mod() {
     let remove_mod = document.getElementById('remove_module_select');
     remove_mod.insertAdjacentHTML('beforeend', `<option value="distortions">Distortion Pannel ${numDist}</option>`);
     
-    let distortions = {id: `distortion_${numDist}`, dist: distortionSquare}
-    rackArray.push(distortions)
-
     var distortion = audioContext.createWaveShaper();
 
-    document.getElementById(`distortion_${numDist}`).addEventListener('input', (e) => {
-        let amount = Number(e.target.value)
+    let distortions = {id: `distortion_${numDist}`, dist: distortion}
+    rackArray.push(distortions)
 
+    
+    let amount;
+    document.getElementById(`distortion_${numDist}`).addEventListener('input', (e) => {
+         amount = Number(e.target.value)
+         distortion.curve = distortion_curve(amount);
+         console.log(distortion.curve);
     });
-    distortion.curve = distortion_curve(amount);
+
+    const oscSaw = audioContext.createOscillator();
+    oscSaw.type = 'sawtooth';
+    oscSaw.frequency.value = 440;
+    
+    
+    console.log(distortion.curve);
     distortion.oversample = '4x';
-    distortion.start(0);
+    oscSaw.start(0);
+    oscSaw.connect(distortion);
     distortion.connect(audioContext.destination);
 }
 
