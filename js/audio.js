@@ -204,6 +204,21 @@ pauseButton.addEventListener('click', () => {
     //gain.disconnect(audioContext.destination);
 }); 
 
+document.addEventListener('keydown', (e) => {
+    // TODO: Change frequency depending on key
+    //if (e.code == 'KeyA') {
+    //    oscSine.frequency.setValueAtTime(69.85, audioContext.currentTime);
+    //} else if (e.code == 'KeyS') {
+    //    oscSine.frequency = 44.01;
+    //}
+    audioContext.resume();
+
+});
+
+document.addEventListener('keyup', () => {
+    audioContext.suspend();
+})
+
 function setup() {
     /*
     const oscSquare = audioContext.createOscillator();
