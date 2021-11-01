@@ -236,9 +236,19 @@ function add_distortion_mod() {
     let remove_mod = document.getElementById('remove_module_select');
     remove_mod.insertAdjacentHTML('beforeend', `<option value="distortions">Distortion Pannel ${numDist}</option>`);
     
-    //let distortions = {id: `distortion_${numDist}`, dist: distortionSquare}
-    //rackArray.push(distortions)
+    let distortions = {id: `distortion_${numDist}`, dist: distortionSquare}
+    rackArray.push(distortions)
 
+    var distortion = audioContext.createWaveShaper();
+
+    document.getElementById(`distortion_${numDist}`).addEventListener('input', (e) => {
+        let amount = Number(e.target.value)
+
+    });
+    distortion.curve = distortion_curve(amount);
+    distortion.oversample = '4x';
+    distortion.start(0);
+    distortion.connect(audioContext.destination);
 }
 
 function remove_distortion_mod(selector) {
