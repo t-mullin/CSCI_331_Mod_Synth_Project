@@ -243,10 +243,10 @@ function add_distortion_mod() {
 
     document.getElementById(`distortion_${numDist}`).addEventListener('input', (e) => {
         let amount = Number(e.target.value)
+        distortion.curve = distortion_curve(amount);
+        distortion.oversample = '4x';
 
     });
-    distortion.curve = distortion_curve(amount);
-    distortion.oversample = '4x';
     distortion.start(0);
     distortion.connect(audioContext.destination);
 }
