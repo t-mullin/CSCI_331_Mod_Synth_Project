@@ -158,6 +158,14 @@ function remove_lfo(selector) {
         rackArray.splice(index, 1);
 }
 
+function add_lpf() {
+
+}
+
+function remove_lpf(selector) {
+
+}
+
 //sets up an event listener on the addButton
 addButton.addEventListener('click', () => {
     //gets what module that the end user wants to add
@@ -169,6 +177,9 @@ addButton.addEventListener('click', () => {
             break;
         case 'lfo':
             add_lfo();
+            break;
+        case 'lpf':
+            add_lpf();
             break;
         default:
             console.log(selector.value);
@@ -186,6 +197,9 @@ removeButton.addEventListener('click', () => {
             break;
         case 'lfo':
             remove_lfo(selector);
+            break;
+        case 'lpf':
+            remove_lpf(selector);
             break;
         default:
             console.log(selector.value);
