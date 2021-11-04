@@ -6,6 +6,7 @@ const addButton = document.getElementById('add_module');
 const removeButton = document.getElementById('remove_module');
 let numOsc = 0;
 let numLFO = 0;
+let numFilter = 0;
 const rackArray = [];
 //const scope = document.getElementById('oscilloscope');
 //const scopeCtx = scope.getContext("2d");
@@ -31,9 +32,12 @@ function add_osc_core() {
     rack.insertAdjacentHTML('beforeend', 
         `<div id="osc_core_${numOsc}">
         <h3>Osc Core ${numOsc}</h3>
-        <input id="freq_square_${numOsc}" type="range" min="0" max="440" value="0" step="10">
-        <input id="freq_saw_${numOsc}" type="range" min="0" max="440" value="0" step="10">
-        <input id="freq_sin_${numOsc}" type="range" min="0" max="440" value="0" step="10">
+        <label for="freq_square">Square Freq</label>
+        <input id="freq_square_${numOsc}" name="freq_square" type="range" min="0" max="440" value="0" step="10">
+        <label for="freq_saw">Saw Freq</label>
+        <input id="freq_saw_${numOsc}" name="freq_saw" type="range" min="0" max="440" value="0" step="10">
+        <label for="freq_sine">Sine Freq</label>
+        <input id="freq_sin_${numOsc}" name="freq_sine" type="range" min="0" max="440" value="0" step="10">
         </div>`
     );
     //add the module to the selector that selects the module for removal
@@ -158,12 +162,73 @@ function remove_lfo(selector) {
         rackArray.splice(index, 1);
 }
 
-function add_lpf() {
+function add_filter() {
+    numFilter++;
+    let rack = document.getElementById('module_rack'); //gets the div that is going to contain the modules
+
+    //insert the html to make an oscillator module, each is unique due to using a template literal
+    rack.insertAdjacentHTML('beforeend', 
+        `<div id="Filter_${numFilter}">
+        <h3>Filter ${numFilter}</h3>
+        <label for="filter_cutoff">Cutoff Freq</label>
+        <input id="freq_cuttoff_${numFilter}" name="filter_cutoff" type="range" min="0" max="10000" value="0" step="1">
+        <label for="filter_q">Resonance</label>
+        <input id="filter_q_${numFilter}" name="filter_q" type="range" min="0" max="12" value="0" step="1">
+        <label for="filter_type">Filter Type:</label>
+        <select id="sel_filter_${numFilter}" name="filter_type">
+            <option value='lowpass'>Low Pass</option>
+            <option value='highpass'>High Pass</option>
+        </select>
+        </div>`
+    );
+
+    //add the module to the selector that selects the module for removal
+   let remove_option = document.getElementById('remove_module_select');
+   remove_option.insertAdjacentHTML('beforeend', `<option value="filter">Filter ${numFilter}</option>`);
+
+   let filter = audioContext.createBiquadFilter();
+   filter.type = 'lowpass';
+   filter.frequency.value = 10000;
+   filter.Q.value = 0;    
+   
+   let filters = {id: `Filter_${numFilter}`, filter1: filter};
+   rackArray.push(filters);
+
+   document.getElementById(`sel_filter_${numFilter}`).addEventListener('change', (e) => {
+       let filter_type = e.target.value;
+       filter.type = filter_type;
+       console.log(filter.type);
+   });
+
+   document.getElementById(`freq_cuttoff_${numFilter}`).addEventListener('input', (e) => {
+       let newFreq = Number(e.target.value);
+       filter.frequency.setValueAtTime(newFreq, audioContext.currentTime);
+        console.log(filter.frequency.value);
+    });
+
+   document.getElementById(`filter_q_${numFilter}`).addEventListener('input', (e) => {
+       filter.Q.value = Number(e.target.value);
+       console.log(filter.Q.value);
+   });
 
 }
 
-function remove_lpf(selector) {
-
+function remove_filter(selector) {
+    //gets the selected option from the selector element
+    let module_name = selector.selectedOptions[0].innerHTML;
+    //gets the number from the selected element
+    let module_num = module_name.match(/(\d+)/);
+    //gets the actual html by it's id
+    let module = document.getElementById(`Filter_${module_num[0]}`);
+    //gets the parent element
+    let rack = document.getElementById('module_rack');
+    //removes the selected child element
+    rack.removeChild(module);
+    //removes the option from the selector
+    selector.selectedOptions[0].parentNode.removeChild(selector.selectedOptions[0]);
+    //removes the module from the global list of modules
+    let index = rackArray.findIndex(({ id }) => id === `Filter_${module_num[0]}`);
+    rackArray.splice(index, 1);
 }
 
 //sets up an event listener on the addButton
@@ -178,8 +243,8 @@ addButton.addEventListener('click', () => {
         case 'lfo':
             add_lfo();
             break;
-        case 'lpf':
-            add_lpf();
+        case 'filter':
+            add_filter();
             break;
         default:
             console.log(selector.value);
@@ -198,8 +263,8 @@ removeButton.addEventListener('click', () => {
         case 'lfo':
             remove_lfo(selector);
             break;
-        case 'lpf':
-            remove_lpf(selector);
+        case 'filter':
+            remove_filter(selector);
             break;
         default:
             console.log(selector.value);
@@ -208,58 +273,16 @@ removeButton.addEventListener('click', () => {
 
 playButton.addEventListener('click', () => {
     if(audioContext.state === 'suspended') {
-        //gain.connect(audioContext.destination);
         audioContext.resume();
     }
 }); 
 
 pauseButton.addEventListener('click', () => {
     audioContext.suspend();
-    //gain.disconnect(audioContext.destination);
 }); 
 
 function setup() {
-    /*
-    const oscSquare = audioContext.createOscillator();
-    oscSquare.type = 'square';
-    oscSquare.frequency = 0;
-    const oscSaw = audioContext.createOscillator();
-    oscSaw.type = 'sawtooth';
-    oscSaw.frequency = 0;
-    const oscSine = audioContext.createOscillator();
-    oscSine.type = 'sine';
-    */
-    const gain = audioContext.createGain();
-    gain.gain.value = 0.5;
-    oscSquare.connect(gain);
-    oscSquare.start(0);
-    oscSaw.connect(gain);
-    oscSaw.start(0);
-    oscSine.connect(gain);
-    oscSine.start(0);
-    gain.connect(osc_scope);
-
-    freqSquare.addEventListener('input', (e) => {
-        let newFreq = parseInt(e.target.value);
-        //console.log(newFreq);
-        oscSquare.frequency.setValueAtTime(newFreq, audioContext.currentTime);
-        //console.log(oscSquare.frequency);
-    }); 
-
-    freqSaw.addEventListener('input', (e) => {
-        let newFreq = parseInt(e.target.value);
-        //console.log(newFreq);
-        oscSaw.frequency.setValueAtTime(newFreq, audioContext.currentTime);
-        //console.log(oscSquare.frequency);
-    });
-
-    freqSin.addEventListener('input', (e) => {
-        let newFreq = parseInt(e.target.value);
-        //console.log(newFreq);
-        oscSine.frequency.setValueAtTime(newFreq, audioContext.currentTime);
-        //console.log(oscSquare.frequency);
-    }); 
-
+    
 }
 
 //need to replace this as it is direcly from https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
