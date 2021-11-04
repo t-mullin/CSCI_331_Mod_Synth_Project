@@ -4,6 +4,7 @@ const playButton = document.getElementById('play');
 const pauseButton = document.getElementById('pause');
 const addButton = document.getElementById('add_module');
 const removeButton = document.getElementById('remove_module');
+const rack = document.getElementById('module_rack'); //gets the div that is going to contain the modules
 let numOsc = 0;
 let numLFO = 0;
 let numFilter = 0;
@@ -27,7 +28,6 @@ const audioContext = new AudioContext();
  */ 
 function add_osc_core() {
     numOsc++; //used for template literals
-    let rack = document.getElementById('module_rack'); //gets the div that is going to contain the modules
     //insert the html to make an oscillator module, each is unique due to using a template literal
     rack.insertAdjacentHTML('beforeend', 
         `<div id="osc_core_${numOsc}">
@@ -80,32 +80,10 @@ function add_osc_core() {
         oscSine.frequency.setValueAtTime(newFreq, audioContext.currentTime);
     });
 }
-/* remove_osc_core: This function removes the selected osc module from the DOM
- *                  then removes it from the global module list. 
- * NOTE: This will probably have to be modified to also disconnect any node attached to it.
- */
-function remove_osc_core(selector) {
-    //gets the selected option from the selector element
-    let module_name = selector.selectedOptions[0].innerHTML;
-    //gets the number from the selected element
-    let module_num = module_name.match(/(\d+)/);
-    //gets the actual html by it's id
-    let module = document.getElementById(`osc_core_${module_num[0]}`);
-    //gets the parent element
-    let rack = document.getElementById('module_rack');
-    //removes the selected child element
-    rack.removeChild(module);
-    //removes the option from the selector
-    selector.selectedOptions[0].parentNode.removeChild(selector.selectedOptions[0]);
-    //removes the module from the global list of modules
-    let index = rackArray.findIndex(({id}) => id === `osc_core_${module_num[0]}`);
-    rackArray.splice(index, 1);
-}
+
 
 function add_lfo() {
     numLFO++;
-    let rack = document.getElementById('module_rack'); //gets the div that is going to contain the modules
-
     //insert the html to make an oscillator module, each is unique due to using a template literal
     rack.insertAdjacentHTML('beforeend', 
         `<div id="LFO_${numLFO}">
@@ -144,28 +122,8 @@ function add_lfo() {
 
 }
 
-function remove_lfo(selector) {
-        //gets the selected option from the selector element
-        let module_name = selector.selectedOptions[0].innerHTML;
-        //gets the number from the selected element
-        let module_num = module_name.match(/(\d+)/);
-        //gets the actual html by it's id
-        let module = document.getElementById(`LFO_${module_num[0]}`);
-        //gets the parent element
-        let rack = document.getElementById('module_rack');
-        //removes the selected child element
-        rack.removeChild(module);
-        //removes the option from the selector
-        selector.selectedOptions[0].parentNode.removeChild(selector.selectedOptions[0]);
-        //removes the module from the global list of modules
-        let index = rackArray.findIndex(({id}) => id === `LFO_${module_num[0]}`);
-        rackArray.splice(index, 1);
-}
-
 function add_filter() {
     numFilter++;
-    let rack = document.getElementById('module_rack'); //gets the div that is going to contain the modules
-
     //insert the html to make an oscillator module, each is unique due to using a template literal
     rack.insertAdjacentHTML('beforeend', 
         `<div id="Filter_${numFilter}">
@@ -213,24 +171,6 @@ function add_filter() {
 
 }
 
-function remove_filter(selector) {
-    //gets the selected option from the selector element
-    let module_name = selector.selectedOptions[0].innerHTML;
-    //gets the number from the selected element
-    let module_num = module_name.match(/(\d+)/);
-    //gets the actual html by it's id
-    let module = document.getElementById(`Filter_${module_num[0]}`);
-    //gets the parent element
-    let rack = document.getElementById('module_rack');
-    //removes the selected child element
-    rack.removeChild(module);
-    //removes the option from the selector
-    selector.selectedOptions[0].parentNode.removeChild(selector.selectedOptions[0]);
-    //removes the module from the global list of modules
-    let index = rackArray.findIndex(({ id }) => id === `Filter_${module_num[0]}`);
-    rackArray.splice(index, 1);
-}
-
 //sets up an event listener on the addButton
 addButton.addEventListener('click', () => {
     //gets what module that the end user wants to add
@@ -255,19 +195,35 @@ addButton.addEventListener('click', () => {
 removeButton.addEventListener('click', () => {
     //gets what module that the end user wants to remove
     let selector = document.getElementById('remove_module_select');
-    //selects the correct remove module function based on the selected option 
+    //selects the correct remove module function based on the selected option
+    //gets the selected option from the selector element
+    let module_name = selector.selectedOptions[0].innerHTML;
+    //gets the number from the selected element
+    let module_num = module_name.match(/(\d+)/);
+    let moduleRemoved = false;
     switch (selector.value) {
         case 'oscillators':
-            remove_osc_core(selector);
+            moduleRemoved = true;
+            var module = document.getElementById(`osc_core_${module_num[0]}`);
+            var index = rackArray.findIndex(({id}) => id === `osc_core_${module_num[0]}`);
             break;
         case 'lfo':
-            remove_lfo(selector);
+            moduleRemoved = true;
+            var module = document.getElementById(`LFO_${module_num[0]}`);
+            var index = rackArray.findIndex(({id}) => id === `LFO_${module_num[0]}`);
             break;
         case 'filter':
-            remove_filter(selector);
+            moduleRemoved = true;
+            var module = document.getElementById(`Filter_${module_num[0]}`);
+            var index = rackArray.findIndex(({ id }) => id === `Filter_${module_num[0]}`);
             break;
         default:
             console.log(selector.value);
+    }
+    if(moduleRemoved) {
+        rack.removeChild(module);
+        selector.selectedOptions[0].parentNode.removeChild(selector.selectedOptions[0]);
+        rackArray.splice(index, 1);
     }
 });
 
