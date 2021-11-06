@@ -69,6 +69,14 @@ div[id^=Filter] {
     background-color: firebrick;
 }
 
+div[id^=distortion] {
+    display: block;
+    float: left;
+    height: 350px;
+    width: 175px;
+    background-color: yellowgreen;
+}
+
 label {
     width: 100%;
     margin: 5px 5px;

@@ -1,23 +1,20 @@
 //file for the Web Audio API integration
 const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioContext = new AudioContext();
+
 const playButton = document.getElementById('play');
 const pauseButton = document.getElementById('pause');
 const addButton = document.getElementById('add_module');
 const removeButton = document.getElementById('remove_module');
 const rack = document.getElementById('module_rack'); //gets the div that is going to contain the modules
+const remove_option = document.getElementById('remove_module_select');
+
 let numOsc = 0;
 let numLFO = 0;
 let numFilter = 0;
-const rackArray = [];
-//const scope = document.getElementById('oscilloscope');
-//const scopeCtx = scope.getContext("2d");
-const audioContext = new AudioContext();
+let numDist = 0;
 
-//let osc_scope = audioContext.createAnalyser();
-//osc_scope.fftSize = 2048;
-//let scopeBuffer = osc_scope.frequencyBinCount;
-//let data = new Uint8Array(scopeBuffer);
-//osc_scope.getByteTimeDomainData(data);
+const rackArray = [];
 
 //setup();
 
@@ -29,6 +26,8 @@ function add_inputs() {
         } else if(rackArray[obj].id.match(/(LFO_)/)) {
             console.log(rackArray[obj].id);
         } else if(rackArray[obj].id.match(/(Filter_)/)) {
+
+        } else if(rackArray[obj].id.match(/(distortion_)/)) {
 
         }
     }
@@ -54,7 +53,6 @@ function add_osc_core() {
         </div>`
     );
     //add the module to the selector that selects the module for removal
-    let remove_option = document.getElementById('remove_module_select');
     remove_option.insertAdjacentHTML('beforeend', `<option value="oscillators">Oscillator Pannel ${numOsc}</option>`);
 
     //setting up the oscillatorNodes
@@ -92,7 +90,7 @@ function add_osc_core() {
         let newFreq = Number(e.target.value);
         oscSine.frequency.setValueAtTime(newFreq, audioContext.currentTime);
     });
-}
+};
 
 
 function add_lfo() {
@@ -112,7 +110,6 @@ function add_lfo() {
         </div>`
     );
     //add the module to the selector that selects the module for removal
-    let remove_option = document.getElementById('remove_module_select');
     remove_option.insertAdjacentHTML('beforeend', `<option value="lfo">LFO ${numLFO}</option>`);
 
     //setting up the oscillatorNodes
@@ -132,8 +129,7 @@ function add_lfo() {
         let newFreq = Number(e.target.value);
         lfo.frequency.setValueAtTime(newFreq, audioContext.currentTime);
     });
-
-}
+};
 
 function add_filter() {
     numFilter++;
@@ -154,7 +150,6 @@ function add_filter() {
     );
 
     //add the module to the selector that selects the module for removal
-   let remove_option = document.getElementById('remove_module_select');
    remove_option.insertAdjacentHTML('beforeend', `<option value="filter">Filter ${numFilter}</option>`);
 
    let filter = audioContext.createBiquadFilter();
@@ -181,8 +176,7 @@ function add_filter() {
        filter.Q.value = Number(e.target.value);
        console.log(filter.Q.value);
    });
-
-}
+};
 
 //sets up an event listener on the addButton
 addButton.addEventListener('click', () => {
@@ -198,6 +192,9 @@ addButton.addEventListener('click', () => {
             break;
         case 'filter':
             add_filter();
+            break;
+        case 'distortions':
+            add_distortion_mod();
             break;
         default:
             console.log(selector.value);
@@ -230,6 +227,11 @@ removeButton.addEventListener('click', () => {
             var module = document.getElementById(`Filter_${module_num[0]}`);
             var index = rackArray.findIndex(({ id }) => id === `Filter_${module_num[0]}`);
             break;
+        case 'distortions':
+            moduleRemoved = true;
+            var module = document.getElementById(`distortion_${module_num[0]}`);
+            var index = rackArray.findIndex(({id}) => id === `distortion_${module_num[0]}`);
+            break;
         default:
             console.log(selector.value);
     }
@@ -254,6 +256,63 @@ pauseButton.addEventListener('click', () => {
 function setup() {
     
 }
+
+function add_distortion_mod() {
+    numDist++;
+
+    rack.insertAdjacentHTML('beforeend',
+        `<div id="distortion_${numDist}">
+        <label id="dist_ratio_${numDist}" for="dist_ratio_${numDist}">Distortion</label>
+        <input id="dist_ratio_${numDist}" type="range" min="0" max="440" value="0" step="10">
+        </div>`
+    );
+
+    remove_option.insertAdjacentHTML('beforeend', `<option value="distortions">Distortion Pannel ${numDist}</option>`);
+    
+    var distortion = audioContext.createWaveShaper();
+    distortion.oversample = '4x';
+
+    let distortions = {id: `distortion_${numDist}`, dist: distortion}
+    rackArray.push(distortions)
+
+    let amount;
+    document.getElementById(`distortion_${numDist}`).addEventListener('input', (e) => {
+         amount = Number(e.target.value)
+         distortion.curve = distortion_curve(amount);
+         console.log(distortion.curve);
+    });
+
+    //const oscSaw = audioContext.createOscillator();
+    //oscSaw.type = 'sawtooth';
+    //oscSaw.frequency.value = 440;
+    //console.log(distortion.curve);
+    //oscSaw.start(0);
+    //oscSaw.connect(distortion);
+    //distortion.connect(audioContext.destination);
+}
+
+function distortion_curve(amount) {
+    var k = typeof amount === 'number' ? amount : 0,
+        n_samples = 44100,
+        curve = new Float32Array(n_samples),
+        degree = Math.PI / 180,
+        i = 0,
+        x;
+    for ( ; i < n_samples; ++i) {
+        x = i * 2 / n_samples - 1;
+        curve[i] = (3 + k) * x * 20 * degree / (Math.PI + k * Math.abs(x));
+    }
+
+    return curve;
+};
+
+//const scope = document.getElementById('oscilloscope');
+//const scopeCtx = scope.getContext("2d");
+//let osc_scope = audioContext.createAnalyser();
+//osc_scope.fftSize = 2048;
+//let scopeBuffer = osc_scope.frequencyBinCount;
+//let data = new Uint8Array(scopeBuffer);
+//osc_scope.getByteTimeDomainData(data);
 
 //need to replace this as it is direcly from https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
 //used to debug
@@ -281,71 +340,3 @@ function drawScope() {
     scopeCtx.stroke();
 }
 //drawScope();
-
-let numDist = 0;
-
-function add_distortion_mod() {
-    numDist++;
-
-    let rack = document.getElementById('module_rack');
-
-    rack.insertAdjacentHTML('beforeend',
-        `<div id="distortion_${numDist}">
-        <label id="dist_ratio_${numDist}" for="dist_ratio_${numDist}">Distortion</label>
-        <input id="dist_ratio_${numDist}" type="range" min="0" max="440" value="0" step="10">
-        </div>`
-    );
-
-    let remove_mod = document.getElementById('remove_module_select');
-    remove_mod.insertAdjacentHTML('beforeend', `<option value="distortions">Distortion Pannel ${numDist}</option>`);
-    
-    var distortion = audioContext.createWaveShaper();
-
-    let distortions = {id: `distortion_${numDist}`, dist: distortion}
-    rackArray.push(distortions)
-
-    
-    let amount;
-    document.getElementById(`distortion_${numDist}`).addEventListener('input', (e) => {
-         amount = Number(e.target.value)
-         distortion.curve = distortion_curve(amount);
-         console.log(distortion.curve);
-    });
-
-    const oscSaw = audioContext.createOscillator();
-    oscSaw.type = 'sawtooth';
-    oscSaw.frequency.value = 440;
-    
-    
-    console.log(distortion.curve);
-    distortion.oversample = '4x';
-    oscSaw.start(0);
-    oscSaw.connect(distortion);
-    distortion.connect(audioContext.destination);
-}
-
-function remove_distortion_mod(selector) {
-    let mod_name = selector.selectedOptions[0].innerHTML;
-    let mod_num = mod_name.match(/(\d+)/);
-    let mod = document.getElementById(`distortion_${mod_num[0]}`);
-    let rack = document.getElementById('module_rack');
-    rack.removeChild(mod);
-    selector.selectedOptions[0].parentNode.removeChild(selector.selectedOptions[0]);
-    let index = rackArray.findIndex(({id}) => id === `distortion_${mod_num[0]}`);
-    rackArray.splice(index, 1);
-}
-
-function distortion_curve(amount) {
-    var k = typeof amount === 'number' ? amount : 0,
-        n_samples = 44100,
-        curve = new Float32Array(n_samples),
-        degree = Math.PI / 180,
-        i = 0,
-        x;
-    for ( ; i < n_samples; ++i) {
-        x = i * 2 / n_samples - 1;
-        curve[i] = (3 + k) * x * 20 * degree / (Math.PI + k * Math.abs(x));
-    }
-
-    return curve;
-};
