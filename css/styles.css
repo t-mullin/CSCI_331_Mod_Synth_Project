@@ -61,8 +61,17 @@ div[id^=LFO] {
     background-color: blueviolet;
 }
 
+div[id^=Filter] {
+    display: block;
+    float: left;
+    height: 350px;
+    width: 175px;
+    background-color: firebrick;
+}
+
 label {
     width: 100%;
-    margin: 5px 0px;
+    margin: 5px 5px;
+    font-size: 12px;
     display: block;
 }
