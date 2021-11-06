@@ -21,6 +21,19 @@ const audioContext = new AudioContext();
 
 //setup();
 
+function add_inputs() {
+    for(const obj in rackArray){
+        //console.log(`${obj}: ${rackArray[obj].id}`);
+        if(rackArray[obj].id.match(/(osc_core_)/)) {
+            //console.log(rackArray[obj].id);
+        } else if(rackArray[obj].id.match(/(LFO_)/)) {
+            console.log(rackArray[obj].id);
+        } else if(rackArray[obj].id.match(/(Filter_)/)) {
+
+        }
+    }
+}
+
 /* add_osc_core: Adds the html containing the structure for a new oscillator module.
  *               The module contains a squarewave, sawtoothwave, and sinewave oscillators.
  *               The oscillators are intialized and events are added to sliders that control 
@@ -228,6 +241,7 @@ removeButton.addEventListener('click', () => {
 });
 
 playButton.addEventListener('click', () => {
+    add_inputs();
     if(audioContext.state === 'suspended') {
         audioContext.resume();
     }
