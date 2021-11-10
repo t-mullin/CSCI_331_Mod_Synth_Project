@@ -45,6 +45,7 @@ div[id^=osc_core] {
     height: 350px;
     width: 175px;
     background-color: darkolivegreen;
+    border-style: solid;
 }
 
 input[id^=freq_]{
@@ -53,33 +54,39 @@ input[id^=freq_]{
     margin: 10px 7px;
 }
 
-div[id^=LFO] {
+div[id^=distortion_] {
     display: block;
     float: left;
     height: 350px;
     width: 175px;
-    background-color: blueviolet;
+    background-color: darkolivegreen;
+    border-style: solid;
 }
 
-div[id^=Filter] {
-    display: block;
-    float: left;
-    height: 350px;
+input[id^=dist_ratio_] {
+    margin-top: 140px;
+}
+
+label[id^=dist_ratio_] {
+    margin-left: 5px;
+}
+
+#module_rack {
+    max-width: 87%;
+    display: inline-block;
+}
+
+#control_pannel {
     width: 175px;
-    background-color: firebrick;
+    text-align: center;
+    padding: 20px;
+    border-style: solid;
+    position: fixed;
+    z-index: 1;
+    top: 51px;
+    right: 20px;
 }
 
-div[id^=distortion] {
-    display: block;
-    float: left;
-    height: 350px;
-    width: 175px;
-    background-color: yellowgreen;
-}
-
-label {
-    width: 100%;
-    margin: 5px 5px;
-    font-size: 12px;
-    display: block;
+#add_module{
+    margin-bottom: 25px;
 }

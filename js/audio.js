@@ -14,7 +14,12 @@ let numLFO = 0;
 let numFilter = 0;
 let numDist = 0;
 
-const rackArray = [];
+
+//let osc_scope = audioContext.createAnalyser();
+//osc_scope.fftSize = 2048;
+//let scopeBuffer = osc_scope.frequencyBinCount;
+//let data = new Uint8Array(scopeBuffer);
+//osc_scope.getByteTimeDomainData(data);
 
 //setup();
 
@@ -187,12 +192,6 @@ addButton.addEventListener('click', () => {
         case 'oscillators':
             add_osc_core();
             break;
-        case 'lfo':
-            add_lfo();
-            break;
-        case 'filter':
-            add_filter();
-            break;
         case 'distortions':
             add_distortion_mod();
             break;
@@ -231,6 +230,9 @@ removeButton.addEventListener('click', () => {
             moduleRemoved = true;
             var module = document.getElementById(`distortion_${module_num[0]}`);
             var index = rackArray.findIndex(({id}) => id === `distortion_${module_num[0]}`);
+            break;
+        case 'distortions':
+            remove_distortion_mod(selector);
             break;
         default:
             console.log(selector.value);
@@ -300,26 +302,20 @@ function distortion_curve(amount) {
     amount_norm = amount / 440;
     for (i = 0; i < n_samples; ++i) {
 
-        if (curve[i] > amount) {
-            curve[i] = amount
-        }
-        else if (curve[i] < -amount) {
-            curve[i] = amount
-        }
-        //x = i * 2 / n_samples - 1;
-        //curve[i] = (3 + k) * x * 20 * degree / (Math.PI + k * Math.abs(x));
+
+}
+
+playButton.addEventListener('click', () => {
+    if(audioContext.state === 'suspended') {
+        //gain.connect(audioContext.destination);
+        audioContext.resume();
     }
+}); 
 
-    return curve;
-};
-
-//const scope = document.getElementById('oscilloscope');
-//const scopeCtx = scope.getContext("2d");
-//let osc_scope = audioContext.createAnalyser();
-//osc_scope.fftSize = 2048;
-//let scopeBuffer = osc_scope.frequencyBinCount;
-//let data = new Uint8Array(scopeBuffer);
-//osc_scope.getByteTimeDomainData(data);
+pauseButton.addEventListener('click', () => {
+    audioContext.suspend();
+    //gain.disconnect(audioContext.destination);
+}); 
 
 //need to replace this as it is direcly from https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
 //used to debug
@@ -347,3 +343,73 @@ function drawScope() {
     scopeCtx.stroke();
 }
 //drawScope();
+
+
+let numDist = 0;
+
+function add_distortion_mod() {
+    numDist++;
+
+    let rack = document.getElementById('module_rack');
+
+    rack.insertAdjacentHTML('beforeend',
+        `<div id="distortion_${numDist}">
+        <label id="dist_ratio_${numDist}" for="dist_ratio_${numDist}">Distortion</label>
+        <input id="dist_ratio_${numDist}" type="range" min="0" max="440" value="0" step="10">
+        </div>`
+    );
+
+    let remove_mod = document.getElementById('remove_module_select');
+    remove_mod.insertAdjacentHTML('beforeend', `<option value="distortions">Distortion Pannel ${numDist}</option>`);
+    
+    var distortion = audioContext.createWaveShaper();
+
+    let distortions = {id: `distortion_${numDist}`, dist: distortion}
+    rackArray.push(distortions)
+
+    
+    let amount;
+    document.getElementById(`distortion_${numDist}`).addEventListener('input', (e) => {
+         amount = Number(e.target.value)
+         distortion.curve = distortion_curve(amount);
+         console.log(distortion.curve);
+    });
+
+    const oscSaw = audioContext.createOscillator();
+    oscSaw.type = 'sawtooth';
+    oscSaw.frequency.value = 440;
+    
+    
+    console.log(distortion.curve);
+    distortion.oversample = '4x';
+    oscSaw.start(0);
+    oscSaw.connect(distortion);
+    distortion.connect(audioContext.destination);
+}
+
+function remove_distortion_mod(selector) {
+    let mod_name = selector.selectedOptions[0].innerHTML;
+    let mod_num = mod_name.match(/(\d+)/);
+    let mod = document.getElementById(`distortion_${mod_num[0]}`);
+    let rack = document.getElementById('module_rack');
+    rack.removeChild(mod);
+    selector.selectedOptions[0].parentNode.removeChild(selector.selectedOptions[0]);
+    let index = rackArray.findIndex(({id}) => id === `distortion_${mod_num[0]}`);
+    rackArray.splice(index, 1);
+}
+
+function distortion_curve(amount) {
+    var k = typeof amount === 'number' ? amount : 0,
+        n_samples = 44100,
+        curve = new Float32Array(n_samples),
+        degree = Math.PI / 180,
+        i = 0,
+        x;
+    for ( ; i < n_samples; ++i) {
+        x = i * 2 / n_samples - 1;
+        curve[i] = (3 + k) * x * 20 * degree / (Math.PI + k * Math.abs(x));
+    }
+
+    return curve;
+};
+}
