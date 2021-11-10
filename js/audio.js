@@ -279,7 +279,7 @@ function add_distortion_mod() {
     document.getElementById(`distortion_${numDist}`).addEventListener('input', (e) => {
          amount = Number(e.target.value)
          distortion.curve = distortion_curve(amount);
-         console.log(distortion.curve);
+         //console.log(distortion.curve);
     });
 
     //const oscSaw = audioContext.createOscillator();
@@ -292,15 +292,22 @@ function add_distortion_mod() {
 }
 
 function distortion_curve(amount) {
-    var k = typeof amount === 'number' ? amount : 0,
+    var k = typeof amount === 'number' ? amount : 50,
         n_samples = 44100,
-        curve = new Float32Array(n_samples),
-        degree = Math.PI / 180,
-        i = 0,
-        x;
-    for ( ; i < n_samples; ++i) {
-        x = i * 2 / n_samples - 1;
-        curve[i] = (3 + k) * x * 20 * degree / (Math.PI + k * Math.abs(x));
+        curve = new Float32Array(n_samples);//,
+        //degree = Math.PI / 180,
+        //x;
+    amount_norm = amount / 440;
+    for (i = 0; i < n_samples; ++i) {
+
+        if (curve[i] > amount) {
+            curve[i] = amount
+        }
+        else if (curve[i] < -amount) {
+            curve[i] = amount
+        }
+        //x = i * 2 / n_samples - 1;
+        //curve[i] = (3 + k) * x * 20 * degree / (Math.PI + k * Math.abs(x));
     }
 
     return curve;
