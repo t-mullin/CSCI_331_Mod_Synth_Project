@@ -43,7 +43,7 @@ div[id^=osc_core] {
     display: block;
     float: left;
     height: 350px;
-    width: 175px;
+    width: 200px;
     background-color: darkolivegreen;
 }
 
@@ -82,4 +82,9 @@ label {
     margin: 5px 5px;
     font-size: 12px;
     display: block;
+}
+
+#playButton, #pauseButton {
+    width: 128px;
+    height: 128px;
 }

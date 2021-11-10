@@ -2,8 +2,8 @@
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioContext = new AudioContext();
 
-const playButton = document.getElementById('play');
-const pauseButton = document.getElementById('pause');
+const playButton = document.getElementById('playButton');
+const pauseButton = document.getElementById('pauseButton');
 const addButton = document.getElementById('add_module');
 const removeButton = document.getElementById('remove_module');
 const rack = document.getElementById('module_rack'); //gets the div that is going to contain the modules
@@ -15,33 +15,92 @@ let numFilter = 0;
 let numDist = 0;
 
 const rackArray = [];
+const connectionArray = []; //module:  ie osc1, output: object member ie auduioContect.destination 
+//connectionArray[x].module.connect(connectionArray[x].output) maybe this will work
 
 //setup();
 
 function add_inputs() {
-    for(const obj in rackArray){
+    for (const obj in rackArray) {
         //console.log(`${obj}: ${rackArray[obj].id}`);
-        if(rackArray[obj].id.match(/(osc_core_)/)) {
-            //console.log(rackArray[obj].id);
-        } else if(rackArray[obj].id.match(/(LFO_)/)) {
+        if (rackArray[obj].id.match(/(osc_core_)/)) {
             console.log(rackArray[obj].id);
-        } else if(rackArray[obj].id.match(/(Filter_)/)) {
+            for (const index in connectionArray) {
+                if (rackArray[obj].id === connectionArray[index].id) {
+                    if (connectionArray[index].output === 'audioContext.destination') {
+                        connectionArray[index].module.connect(audioContext.destination);
+                    } else if (connectionArray[index].output.endsWith('oscSquare')) {
+                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
+                        connectionArray[index].module.connect(mod.osc1);
+                    } else if (connectionArray[index].output.endsWith('oscSaw')) {
+                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
+                        connectionArray[index].module.connect(mod.osc2);
+                    } else if (connectionArray[index].output.endsWith('oscSine')) {
+                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
+                        connectionArray[index].module.connect(mod.osc3);
+                    } else if (connectionArray[index].output.endsWith('oscSquare.frequency')) {
+                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
+                        connectionArray[index].module.connect(mod.osc1.frequency);
+                    } else if (connectionArray[index].output.endsWith('oscSaw.frequency')) {
+                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
+                        connectionArray[index].module.connect(mod.osc2.frequency);
+                    } else if (connectionArray[index].output.endsWith('oscSine.frequency')) {
+                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
+                        connectionArray[index].module.connect(mod.osc3.frequency);
+                    }
+                    //console.log(connectionArray[index]);
+                }
+            }
+        } else if (rackArray[obj].id.match(/(LFO_)/)) {
+            //console.log(rackArray[obj].id);
+            for (const index in connectionArray) {
+                if (rackArray[obj].id === connectionArray[index].id) {
+                    if (connectionArray[index].output === 'audioContext.destination') {
+                        connectionArray[index].module.connect(audioContext.destination);
+                    }  else if (connectionArray[index].output.endsWith('oscSquare')) {
+                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
+                        connectionArray[index].module.connect(mod.osc1);
+                    } else if (connectionArray[index].output.endsWith('oscSaw')) {
+                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
+                        connectionArray[index].module.connect(mod.osc2);
+                    } else if (connectionArray[index].output.endsWith('oscSine')) {
+                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
+                        connectionArray[index].module.connect(mod.osc3);
+                    }else if (connectionArray[index].output.endsWith('oscSquare.frequency')) {
+                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
+                        console.log(mod.id);
+                        console.log(connectionArray[index].output);
+                        connectionArray[index].module.connect(mod.osc1.frequency);
+                    } else if (connectionArray[index].output.endsWith('oscSaw.frequency')) {
+                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
+                        connectionArray[index].module.connect(mod.osc2.frequency);
+                    } else if (connectionArray[index].output.endsWith('oscSine.frequency')) {
+                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
+                        connectionArray[index].module.connect(mod.osc3.frequency);
+                    }
+                    //console.log(connectionArray[index]);
+                }
+            }
 
-        } else if(rackArray[obj].id.match(/(distortion_)/)) {
+        } else if (rackArray[obj].id.match(/(Filter_)/)) {
+
+        } else if (rackArray[obj].id.match(/(distortion_)/)) {
 
         }
     }
 }
 
+
+
 /* add_osc_core: Adds the html containing the structure for a new oscillator module.
  *               The module contains a squarewave, sawtoothwave, and sinewave oscillators.
  *               The oscillators are intialized and events are added to sliders that control 
  *               the frequency of the oscillators.   
- */ 
+ */
 function add_osc_core() {
     numOsc++; //used for template literals
     //insert the html to make an oscillator module, each is unique due to using a template literal
-    rack.insertAdjacentHTML('beforeend', 
+    rack.insertAdjacentHTML('beforeend',
         `<div id="osc_core_${numOsc}">
         <h3>Osc Core ${numOsc}</h3>
         <label for="freq_square">Square Freq</label>
@@ -50,6 +109,18 @@ function add_osc_core() {
         <input id="freq_saw_${numOsc}" name="freq_saw" type="range" min="0" max="440" value="0" step="10">
         <label for="freq_sine">Sine Freq</label>
         <input id="freq_sin_${numOsc}" name="freq_sine" type="range" min="0" max="440" value="0" step="10">
+        <label for="osc1_out">Osc1 Out</label>
+        <select class="output_select" id="osc_square_out_${numOsc}" name="osc1_out">
+            <option value=audioContext.destination>Speakers</option>
+        </select>
+        <label for="osc2_out">Osc2 Out</label>
+        <select class="output_select" id="osc_saw_out_${numOsc}" name="osc2_out">
+            <option value=audioContext.destination>Speakers</option>
+        </select>
+        <label for="osc3_out">Osc3 Out</label>
+        <select class="output_select" id="osc_sine_out_${numOsc}" name="osc3_out">
+            <option value=audioContext.destination>Speakers</option>
+        </select>
         </div>`
     );
     //add the module to the selector that selects the module for removal
@@ -66,20 +137,33 @@ function add_osc_core() {
     oscSine.type = 'sine';
     oscSine.frequency.value = 0;
 
+    oscSquare.start(0);
+    oscSaw.start(0);
     oscSine.start(0);
-    oscSine.connect(audioContext.destination);
+
+    let outputSel = document.querySelectorAll('select.output_select');
+    //console.log(outputSel[0]);
+    for (let i = 0; i < outputSel.length; i++) {
+        console.log(outputSel[i]);
+        outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSquare>Osc ${numOsc} Square </option>`);
+        outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSaw>Osc ${numOsc} Sawtooth </option>`);
+        outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSine>Osc ${numOsc} Sine </option>`);
+        outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSquare.frequency>Osc ${numOsc} Square Frequency</option>`);
+        outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSaw.frequency>Osc ${numOsc} Sawtooth Frequency</option>`);
+        outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSine.frequency>Osc ${numOsc} Sine Frequency</option>`);
+    }
 
     //adding the oscillator module to the global list of modules
     //NOTE: may need to change this to include the input/output to make connecting modules
     //      easier
-    let oscillators = {id: `osc_core_${numOsc}`, osc1: oscSquare, osc2: oscSaw, osc3: oscSine};
+    let oscillators = { id: `osc_core_${numOsc}`, osc1: oscSquare, osc2: oscSaw, osc3: oscSine };
     rackArray.push(oscillators);
-    
+
     //setting up event listeners for the frequency sliders
     document.getElementById(`freq_square_${numOsc}`).addEventListener('input', (e) => {
         let newFreq = Number(e.target.value);
         oscSquare.frequency.setValueAtTime(newFreq, audioContext.currentTime);
-    }); 
+    });
 
     document.getElementById(`freq_saw_${numOsc}`).addEventListener('input', (e) => {
         let newFreq = Number(e.target.value);
@@ -90,13 +174,47 @@ function add_osc_core() {
         let newFreq = Number(e.target.value);
         oscSine.frequency.setValueAtTime(newFreq, audioContext.currentTime);
     });
+
+    document.getElementById(`osc_square_out_${numOsc}`).addEventListener('change', (e) => {
+        for (patch in connectionArray) {
+            console.log(connectionArray[patch].id);
+            if (connectionArray[patch].id === `osc_core_${numOsc}` && connectionArray[patch].module === oscSquare) {
+                connectionArray.splice(patch, 1);
+            }
+        }
+        let output = e.target.value;
+        let connection = { id: `osc_core_${numOsc}`, module: oscSquare, output: output }
+        connectionArray.push(connection);
+    });
+
+    document.getElementById(`osc_saw_out_${numOsc}`).addEventListener('change', (e) => {
+        for (patch in connectionArray) {
+            if (connectionArray[patch].id === `osc_core_${numOsc}` && connectionArray[patch].module === oscSaw) {
+                connectionArray.splice(patch, 1);
+            }
+        }
+        let output = e.target.value;
+        let connection = { id: `osc_core_${numOsc}`, module: oscSaw, output: output }
+        connectionArray.push(connection);
+    });
+
+    document.getElementById(`osc_sine_out_${numOsc}`).addEventListener('change', (e) => {
+        for (patch in connectionArray) {
+            if (connectionArray[patch].id === `osc_core_${numOsc}` && connectionArray[patch].module === oscSine) {
+                connectionArray.splice(patch, 1);
+            }
+        }
+        let output = e.target.value;
+        let connection = { id: `osc_core_${numOsc}`, module: oscSine, output: output }
+        connectionArray.push(connection);
+    });
 };
 
 
 function add_lfo() {
     numLFO++;
     //insert the html to make an oscillator module, each is unique due to using a template literal
-    rack.insertAdjacentHTML('beforeend', 
+    rack.insertAdjacentHTML('beforeend',
         `<div id="LFO_${numLFO}">
         <h3>LFO ${numLFO}</h3>
         <input id="freq_lfo_${numLFO}" type="range" min="0" max="220" value="0" step="0.1">
@@ -107,6 +225,10 @@ function add_lfo() {
             <option value='sawtooth'>Sawtooth</option>
             <option value='triangle'>Triangle</option>
         </select>
+        <label for="lfo_out">LFO Out</label>
+        <select class="output_select" id="lfo_out_${numOsc}" name="lfo_out">
+            <option value=audioContext.destination>Speakers</option>
+        </select>
         </div>`
     );
     //add the module to the selector that selects the module for removal
@@ -116,8 +238,16 @@ function add_lfo() {
     let lfo = audioContext.createOscillator();
     lfo.type = 'square';
     lfo.frequency.value = 0;
+    lfo.start(0);
 
-    let lfos = {id: `LFO_${numLFO}`, lfo1: lfo};
+    let outputSel = document.querySelectorAll('select.output_select');
+    //console.log(outputSel[0]);
+    for (let i = 0; i < outputSel.length; i++) {
+        console.log(outputSel[i]);
+        outputSel[i].insertAdjacentHTML('beforeend', `<option value=LFO_${numLFO}.lfo>LFO ${numLFO}</option>`);
+    }
+
+    let lfos = { id: `LFO_${numLFO}`, lfo1: lfo };
     rackArray.push(lfos);
 
     document.getElementById(`sel_lfo_${numLFO}`).addEventListener('change', (e) => {
@@ -129,12 +259,24 @@ function add_lfo() {
         let newFreq = Number(e.target.value);
         lfo.frequency.setValueAtTime(newFreq, audioContext.currentTime);
     });
+
+    document.getElementById(`lfo_out_${numOsc}`).addEventListener('change', (e) => {
+        for (patch in connectionArray) {
+            if (connectionArray[patch].module === lfo) {
+                connectionArray.splice(patch, 1);
+            }
+        }
+        let output = e.target.value;
+        let connection = { id: `LFO_${numLFO}`, module: lfo, output: output }
+        connectionArray.push(connection);
+    });
+
 };
 
 function add_filter() {
     numFilter++;
     //insert the html to make an oscillator module, each is unique due to using a template literal
-    rack.insertAdjacentHTML('beforeend', 
+    rack.insertAdjacentHTML('beforeend',
         `<div id="Filter_${numFilter}">
         <h3>Filter ${numFilter}</h3>
         <label for="filter_cutoff">Cutoff Freq</label>
@@ -150,32 +292,32 @@ function add_filter() {
     );
 
     //add the module to the selector that selects the module for removal
-   remove_option.insertAdjacentHTML('beforeend', `<option value="filter">Filter ${numFilter}</option>`);
+    remove_option.insertAdjacentHTML('beforeend', `<option value="filter">Filter ${numFilter}</option>`);
 
-   let filter = audioContext.createBiquadFilter();
-   filter.type = 'lowpass';
-   filter.frequency.value = 10000;
-   filter.Q.value = 0;    
-   
-   let filters = {id: `Filter_${numFilter}`, filter1: filter};
-   rackArray.push(filters);
+    let filter = audioContext.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 10000;
+    filter.Q.value = 0;
 
-   document.getElementById(`sel_filter_${numFilter}`).addEventListener('change', (e) => {
-       let filter_type = e.target.value;
-       filter.type = filter_type;
-       console.log(filter.type);
-   });
+    let filters = { id: `Filter_${numFilter}`, filter1: filter };
+    rackArray.push(filters);
 
-   document.getElementById(`freq_cuttoff_${numFilter}`).addEventListener('input', (e) => {
-       let newFreq = Number(e.target.value);
-       filter.frequency.setValueAtTime(newFreq, audioContext.currentTime);
+    document.getElementById(`sel_filter_${numFilter}`).addEventListener('change', (e) => {
+        let filter_type = e.target.value;
+        filter.type = filter_type;
+        console.log(filter.type);
+    });
+
+    document.getElementById(`freq_cuttoff_${numFilter}`).addEventListener('input', (e) => {
+        let newFreq = Number(e.target.value);
+        filter.frequency.setValueAtTime(newFreq, audioContext.currentTime);
         console.log(filter.frequency.value);
     });
 
-   document.getElementById(`filter_q_${numFilter}`).addEventListener('input', (e) => {
-       filter.Q.value = Number(e.target.value);
-       console.log(filter.Q.value);
-   });
+    document.getElementById(`filter_q_${numFilter}`).addEventListener('input', (e) => {
+        filter.Q.value = Number(e.target.value);
+        console.log(filter.Q.value);
+    });
 };
 
 //sets up an event listener on the addButton
@@ -215,12 +357,12 @@ removeButton.addEventListener('click', () => {
         case 'oscillators':
             moduleRemoved = true;
             var module = document.getElementById(`osc_core_${module_num[0]}`);
-            var index = rackArray.findIndex(({id}) => id === `osc_core_${module_num[0]}`);
+            var index = rackArray.findIndex(({ id }) => id === `osc_core_${module_num[0]}`);
             break;
         case 'lfo':
             moduleRemoved = true;
             var module = document.getElementById(`LFO_${module_num[0]}`);
-            var index = rackArray.findIndex(({id}) => id === `LFO_${module_num[0]}`);
+            var index = rackArray.findIndex(({ id }) => id === `LFO_${module_num[0]}`);
             break;
         case 'filter':
             moduleRemoved = true;
@@ -230,12 +372,12 @@ removeButton.addEventListener('click', () => {
         case 'distortions':
             moduleRemoved = true;
             var module = document.getElementById(`distortion_${module_num[0]}`);
-            var index = rackArray.findIndex(({id}) => id === `distortion_${module_num[0]}`);
+            var index = rackArray.findIndex(({ id }) => id === `distortion_${module_num[0]}`);
             break;
         default:
             console.log(selector.value);
     }
-    if(moduleRemoved) {
+    if (moduleRemoved) {
         rack.removeChild(module);
         selector.selectedOptions[0].parentNode.removeChild(selector.selectedOptions[0]);
         rackArray.splice(index, 1);
@@ -243,18 +385,22 @@ removeButton.addEventListener('click', () => {
 });
 
 playButton.addEventListener('click', () => {
+    playButton.style.backgroundColor = "white";
+    pauseButton.style.backgroundColor = "#444";
     add_inputs();
-    if(audioContext.state === 'suspended') {
+    if (audioContext.state === 'suspended') {
         audioContext.resume();
     }
-}); 
+});
 
 pauseButton.addEventListener('click', () => {
+    pauseButton.style.backgroundColor = "white";
+    playButton.style.backgroundColor = "#444";
     audioContext.suspend();
-}); 
+});
 
 function setup() {
-    
+
 }
 
 function add_distortion_mod() {
@@ -268,18 +414,18 @@ function add_distortion_mod() {
     );
 
     remove_option.insertAdjacentHTML('beforeend', `<option value="distortions">Distortion Pannel ${numDist}</option>`);
-    
+
     var distortion = audioContext.createWaveShaper();
     distortion.oversample = '4x';
 
-    let distortions = {id: `distortion_${numDist}`, dist: distortion}
+    let distortions = { id: `distortion_${numDist}`, dist: distortion }
     rackArray.push(distortions)
 
     let amount;
     document.getElementById(`distortion_${numDist}`).addEventListener('input', (e) => {
-         amount = Number(e.target.value)
-         distortion.curve = distortion_curve(amount);
-         console.log(distortion.curve);
+        amount = Number(e.target.value)
+        distortion.curve = distortion_curve(amount);
+        console.log(distortion.curve);
     });
 
     //const oscSaw = audioContext.createOscillator();
@@ -298,45 +444,10 @@ function distortion_curve(amount) {
         degree = Math.PI / 180,
         i = 0,
         x;
-    for ( ; i < n_samples; ++i) {
+    for (; i < n_samples; ++i) {
         x = i * 2 / n_samples - 1;
         curve[i] = (3 + k) * x * 20 * degree / (Math.PI + k * Math.abs(x));
     }
 
     return curve;
 };
-
-//const scope = document.getElementById('oscilloscope');
-//const scopeCtx = scope.getContext("2d");
-//let osc_scope = audioContext.createAnalyser();
-//osc_scope.fftSize = 2048;
-//let scopeBuffer = osc_scope.frequencyBinCount;
-//let data = new Uint8Array(scopeBuffer);
-//osc_scope.getByteTimeDomainData(data);
-
-//need to replace this as it is direcly from https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
-//used to debug
-function drawScope() {
-    requestAnimationFrame(drawScope);
-    osc_scope.getByteTimeDomainData(data);
-    scopeCtx.fillStyle - "rgb(0, 0, 0)";
-    scopeCtx.fillRect(0,0,scope.width, scope.height);
-    scopeCtx.lineWidth = 2;
-    scopeCtx.strokeStyle = "rgb(0, 200, 0)";
-    scopeCtx.beginPath();
-    let sliceWidth = scope.width * 1.0 / scopeBuffer;
-    let x  = 0;
-    for(let i = 0; i < scopeBuffer; i++) {
-        let v = data[i]/128.0;
-        let y = v * scope.height / 2;
-        if(i === 0) {
-            scopeCtx.moveTo(x, y);
-        } else {
-            scopeCtx.lineTo(x, y);
-        }
-        x += sliceWidth;
-    }
-    scopeCtx.lineTo(scope.width, scope.height/2);
-    scopeCtx.stroke();
-}
-//drawScope();
