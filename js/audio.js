@@ -11,6 +11,8 @@ const rackArray = [];
 //const scopeCtx = scope.getContext("2d");
 const audioContext = new AudioContext();
 
+const keyMap = {"a": 130.81, "s": 138.59, "d": 146.83, "f": 155.56, "g": 164.81, "h": 174.61, "j": 185.00, "k": 196.00, "l": 207.65}
+
 //let osc_scope = audioContext.createAnalyser();
 //osc_scope.fftSize = 2048;
 //let scopeBuffer = osc_scope.frequencyBinCount;
@@ -75,6 +77,40 @@ function add_osc_core() {
         let newFreq = Number(e.target.value);
         oscSine.frequency.setValueAtTime(newFreq, audioContext.currentTime);
     });
+
+    document.addEventListener('keydown', (e) => {
+        // TODO: Change frequency depending on key
+        //if (e.code == 'KeyA') {
+        //    oscSine.frequency.setValueAtTime(69.85, audioContext.currentTime);
+        //} else if (e.code == 'KeyS') {
+        //    oscSine.frequency = 44.01;
+        //}
+        /*if (e.key == "a") {
+            oscSine.frequency.setValueAtTime(130.81, audioContext.currentTime);
+        } else if (e.key == "s") {
+            oscSine.frequency.setValueAtTime(138.59, audioContext.currentTime);
+        } else if (e.key == "d") {
+            oscSine.frequency.setValueAtTime(146.83, audioContext.currentTime);
+        } else if (e.key == "f") {
+            oscSine.frequency.setValueAtTime(155.56, audioContext.currentTime);
+        } else if (e.key == "g") {
+            oscSine.frequency.setValueAtTime(164.81, audioContext.currentTime);
+        } else if (e.key == "h") {
+            oscSine.frequency.setValueAtTime(174.61, audioContext.currentTime);
+        } else if (e.key == "j") {
+            oscSine.frequency.setValueAtTime(185.00, audioContext.currentTime);
+        } else if (e.key == "k") {
+            oscSine.frequency.setValueAtTime(196.00, audioContext.currentTime);
+        } else if (e.key == "l") {
+            oscSine.frequency.setValueAtTime(207.65, audioContext.currentTime);
+        }*/
+        oscSine.frequency.setValueAtTime(keyMap[e.key], audioContext.currentTime);
+        audioContext.resume();
+    });
+    
+    document.addEventListener('keyup', () => {
+        audioContext.suspend();
+    })
 }
 /* remove_osc_core: This function removes the selected osc module from the DOM
  *                  then removes it from the global module list. 
@@ -204,20 +240,7 @@ pauseButton.addEventListener('click', () => {
     //gain.disconnect(audioContext.destination);
 }); 
 
-document.addEventListener('keydown', (e) => {
-    // TODO: Change frequency depending on key
-    //if (e.code == 'KeyA') {
-    //    oscSine.frequency.setValueAtTime(69.85, audioContext.currentTime);
-    //} else if (e.code == 'KeyS') {
-    //    oscSine.frequency = 44.01;
-    //}
-    audioContext.resume();
 
-});
-
-document.addEventListener('keyup', () => {
-    audioContext.suspend();
-})
 
 function setup() {
     /*
