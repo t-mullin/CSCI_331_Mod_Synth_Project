@@ -77,6 +77,14 @@ div[id^=distortion] {
     background-color: yellowgreen;
 }
 
+div[id^=vca] {
+    display: block;
+    float: left;
+    height: 350px;
+    width: 175px;
+    background-color: deeppink;
+}
+
 label {
     width: 100%;
     margin: 5px 5px;
@@ -87,4 +95,5 @@ label {
 #playButton, #pauseButton {
     width: 128px;
     height: 128px;
+    margin-top: 5px;
 }

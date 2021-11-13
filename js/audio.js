@@ -12,6 +12,7 @@ const remove_option = document.getElementById('remove_module_select');
 let numOsc = 0;
 let numLFO = 0;
 let numFilter = 0;
+let numVCA = 0;
 let numDist = 0;
 
 const rackArray = [];
@@ -23,70 +24,46 @@ const connectionArray = []; //module:  ie osc1, output: object member ie auduioC
 function add_inputs() {
     for (const obj in rackArray) {
         //console.log(`${obj}: ${rackArray[obj].id}`);
-        if (rackArray[obj].id.match(/(osc_core_)/)) {
-            console.log(rackArray[obj].id);
-            for (const index in connectionArray) {
-                if (rackArray[obj].id === connectionArray[index].id) {
-                    if (connectionArray[index].output === 'audioContext.destination') {
-                        connectionArray[index].module.connect(audioContext.destination);
-                    } else if (connectionArray[index].output.endsWith('oscSquare')) {
-                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
-                        connectionArray[index].module.connect(mod.osc1);
-                    } else if (connectionArray[index].output.endsWith('oscSaw')) {
-                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
-                        connectionArray[index].module.connect(mod.osc2);
-                    } else if (connectionArray[index].output.endsWith('oscSine')) {
-                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
-                        connectionArray[index].module.connect(mod.osc3);
-                    } else if (connectionArray[index].output.endsWith('oscSquare.frequency')) {
-                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
-                        connectionArray[index].module.connect(mod.osc1.frequency);
-                    } else if (connectionArray[index].output.endsWith('oscSaw.frequency')) {
-                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
-                        connectionArray[index].module.connect(mod.osc2.frequency);
-                    } else if (connectionArray[index].output.endsWith('oscSine.frequency')) {
-                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
-                        connectionArray[index].module.connect(mod.osc3.frequency);
-                    }
-                    //console.log(connectionArray[index]);
-                }
-            }
-        } else if (rackArray[obj].id.match(/(LFO_)/)) {
+        //if (rackArray[obj].id.match(/(osc_core_)/)) {
             //console.log(rackArray[obj].id);
-            for (const index in connectionArray) {
-                if (rackArray[obj].id === connectionArray[index].id) {
-                    if (connectionArray[index].output === 'audioContext.destination') {
-                        connectionArray[index].module.connect(audioContext.destination);
-                    }  else if (connectionArray[index].output.endsWith('oscSquare')) {
-                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
-                        connectionArray[index].module.connect(mod.osc1);
-                    } else if (connectionArray[index].output.endsWith('oscSaw')) {
-                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
-                        connectionArray[index].module.connect(mod.osc2);
-                    } else if (connectionArray[index].output.endsWith('oscSine')) {
-                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
-                        connectionArray[index].module.connect(mod.osc3);
-                    }else if (connectionArray[index].output.endsWith('oscSquare.frequency')) {
-                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
-                        console.log(mod.id);
-                        console.log(connectionArray[index].output);
-                        connectionArray[index].module.connect(mod.osc1.frequency);
-                    } else if (connectionArray[index].output.endsWith('oscSaw.frequency')) {
-                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
-                        connectionArray[index].module.connect(mod.osc2.frequency);
-                    } else if (connectionArray[index].output.endsWith('oscSine.frequency')) {
-                        let mod = rackArray.find(mod => mod.id === connectionArray[index].id);
-                        connectionArray[index].module.connect(mod.osc3.frequency);
+            for(let osc = 0; osc < rackArray[obj]["module"].length; osc++) {
+                if(rackArray[obj]["module"][osc].output != " ") {
+                    //console.log(rackArray[obj]["module"][osc].output);
+                    if(rackArray[obj]["module"][osc].output === 'audioContext.destination') {
+                        rackArray[obj]["module"][osc].osc.connect(audioContext.destination);
+                    } else {
+                        let out = rackArray[obj]["module"][osc].output;
+                        let outputID = out.substring(0, out.indexOf('.'));
+                        let outputMod = rackArray.find((mod) => {return mod.id == outputID});
+                        
+                        console.log(out)
+                        console.log(outputMod.module[0]["osc"])
+                        console.log(out.substring(out.indexOf('.')+1))
+
+                        if(out.substring(out.indexOf('.')+1) === 'oscSquare') {
+                            rackArray[obj]["module"][osc]["osc"].connect(outputMod.module[0]["osc"]);
+                        } else if(out.substring(out.indexOf('.')+1) === 'oscSquare') {
+                            rackArray[obj]["module"][osc]["osc"].connect(outputMod.module[1]["osc"]);
+                        } else if(out.substring(out.indexOf('.')+1) === 'oscSquare') {
+                            rackArray[obj]["module"][osc]["osc"].connect(outputMod.module[2]["osc"]);
+                        } else if(out.substring(out.indexOf('.')+1) === 'oscSquare.frequency') {
+                            rackArray[obj]["module"][osc]["osc"].connect(outputMod.module[0]["osc"].frequency);
+                        } else if(out.substring(out.indexOf('.')+1) === 'oscSaw.frequency') {
+                            rackArray[obj]["module"][osc]["osc"].connect(outputMod.module[1]["osc"].frequency);
+                        } else if(out.substring(out.indexOf('.')+1) === 'oscSine.frequency') {
+                            rackArray[obj]["module"][osc]["osc"].connect(outputMod.module[2]["osc"].frequency);
+                        } 
                     }
-                    //console.log(connectionArray[index]);
                 }
             }
+        //} else if (rackArray[obj].id.match(/(LFO_)/)) {
 
-        } else if (rackArray[obj].id.match(/(Filter_)/)) {
 
-        } else if (rackArray[obj].id.match(/(distortion_)/)) {
+        //} else if (rackArray[obj].id.match(/(Filter_)/)) {
 
-        }
+        //} else if (rackArray[obj].id.match(/(distortion_)/)) {
+
+        //}
     }
 }
 
@@ -144,7 +121,7 @@ function add_osc_core() {
     let outputSel = document.querySelectorAll('select.output_select');
     //console.log(outputSel[0]);
     for (let i = 0; i < outputSel.length; i++) {
-        console.log(outputSel[i]);
+        //console.log(outputSel[i]);
         outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSquare>Osc ${numOsc} Square </option>`);
         outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSaw>Osc ${numOsc} Sawtooth </option>`);
         outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSine>Osc ${numOsc} Sine </option>`);
@@ -156,7 +133,7 @@ function add_osc_core() {
     //adding the oscillator module to the global list of modules
     //NOTE: may need to change this to include the input/output to make connecting modules
     //      easier
-    let oscillators = { id: `osc_core_${numOsc}`, osc1: oscSquare, osc2: oscSaw, osc3: oscSine };
+    let oscillators = { id: `osc_core_${numOsc}`, module: [{osc: oscSquare, output: " "}, {osc: oscSaw, output: " "}, {osc: oscSine, output: " "}]};
     rackArray.push(oscillators);
 
     //setting up event listeners for the frequency sliders
@@ -176,40 +153,20 @@ function add_osc_core() {
     });
 
     document.getElementById(`osc_square_out_${numOsc}`).addEventListener('change', (e) => {
-        for (patch in connectionArray) {
-            console.log(connectionArray[patch].id);
-            if (connectionArray[patch].id === `osc_core_${numOsc}` && connectionArray[patch].module === oscSquare) {
-                connectionArray.splice(patch, 1);
-            }
-        }
         let output = e.target.value;
-        let connection = { id: `osc_core_${numOsc}`, module: oscSquare, output: output }
-        connectionArray.push(connection);
+        oscillators.module[0].output = output;
     });
 
     document.getElementById(`osc_saw_out_${numOsc}`).addEventListener('change', (e) => {
-        for (patch in connectionArray) {
-            if (connectionArray[patch].id === `osc_core_${numOsc}` && connectionArray[patch].module === oscSaw) {
-                connectionArray.splice(patch, 1);
-            }
-        }
         let output = e.target.value;
-        let connection = { id: `osc_core_${numOsc}`, module: oscSaw, output: output }
-        connectionArray.push(connection);
+        oscillators.module[1].output = output;
     });
 
     document.getElementById(`osc_sine_out_${numOsc}`).addEventListener('change', (e) => {
-        for (patch in connectionArray) {
-            if (connectionArray[patch].id === `osc_core_${numOsc}` && connectionArray[patch].module === oscSine) {
-                connectionArray.splice(patch, 1);
-            }
-        }
         let output = e.target.value;
-        let connection = { id: `osc_core_${numOsc}`, module: oscSine, output: output }
-        connectionArray.push(connection);
+        oscillators.module[2].output = output;
     });
 };
-
 
 function add_lfo() {
     numLFO++;
@@ -247,7 +204,7 @@ function add_lfo() {
         outputSel[i].insertAdjacentHTML('beforeend', `<option value=LFO_${numLFO}.lfo>LFO ${numLFO}</option>`);
     }
 
-    let lfos = { id: `LFO_${numLFO}`, lfo1: lfo };
+    let lfos = { id: `LFO_${numLFO}`, module : [{lfo: lfo, output: ""}]};
     rackArray.push(lfos);
 
     document.getElementById(`sel_lfo_${numLFO}`).addEventListener('change', (e) => {
@@ -261,14 +218,8 @@ function add_lfo() {
     });
 
     document.getElementById(`lfo_out_${numOsc}`).addEventListener('change', (e) => {
-        for (patch in connectionArray) {
-            if (connectionArray[patch].module === lfo) {
-                connectionArray.splice(patch, 1);
-            }
-        }
         let output = e.target.value;
-        let connection = { id: `LFO_${numLFO}`, module: lfo, output: output }
-        connectionArray.push(connection);
+        lfos.module.output = output;
     });
 
 };
@@ -299,7 +250,7 @@ function add_filter() {
     filter.frequency.value = 10000;
     filter.Q.value = 0;
 
-    let filters = { id: `Filter_${numFilter}`, filter1: filter };
+    let filters = { id: `Filter_${numFilter}`, module: [{filter: filter, output: " "}]};
     rackArray.push(filters);
 
     document.getElementById(`sel_filter_${numFilter}`).addEventListener('change', (e) => {
@@ -320,6 +271,34 @@ function add_filter() {
     });
 };
 
+function add_vca() {
+    numVCA++;
+    rack.insertAdjacentHTML('beforeend',
+    `<div id="vca_${numVCA}">
+    <h3>VCA ${numVCA}</h3>
+    <label for="gain">Gain</label>
+    <input id="gain_${numVCA}" name="gain" type="range" min="0" max="2000" value="0" step="1">
+    <label for="gain_out">Gain out</label>
+    <select class="output_select" id="gain_out_${numVCA}" name="gain_out">
+        <option value=audioContext.destination>Speakers</option>
+    </select>
+    </div>`
+    );
+
+    //add the module to the selector that selects the module for removal
+    remove_option.insertAdjacentHTML('beforeend', `<option value="vca">VCA ${numVCA}</option>`);
+
+    let vca = audioContext.createGain();
+    vca.gain.value = 0;
+
+    let vcas = {id: `vca_${numVCA}`, module: [{vca: vca, output: " "}]};
+    rackArray.push(vcas);
+
+    document.getElementById(`gain_${numVCA}`).addEventListener('input', (e) => {
+        vca.gain.value = Number(e.target.value);
+    });
+}
+
 //sets up an event listener on the addButton
 addButton.addEventListener('click', () => {
     //gets what module that the end user wants to add
@@ -337,6 +316,9 @@ addButton.addEventListener('click', () => {
             break;
         case 'distortions':
             add_distortion_mod();
+            break;
+        case 'vca':
+            add_vca();
             break;
         default:
             console.log(selector.value);
@@ -373,6 +355,11 @@ removeButton.addEventListener('click', () => {
             moduleRemoved = true;
             var module = document.getElementById(`distortion_${module_num[0]}`);
             var index = rackArray.findIndex(({ id }) => id === `distortion_${module_num[0]}`);
+            break;
+        case 'vca':
+            moduleRemoved = true;
+            var module = document.getElementById(`vca_${module_num[0]}`);
+            var index = rackArray.findIndex(({ id }) => id === `vca_${module_num[0]}`);
             break;
         default:
             console.log(selector.value);
