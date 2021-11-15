@@ -1,0 +1,54 @@
+<template>
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Modular Synth</title>
+        <link rel="shortcut icon" type="image/gif" href="img/Coffee32.gif">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">     
+        <link href="css/styles.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <div id="module_rack">
+            <p>Module Rack</p>
+        </div>
+        <div id="control_pannel">
+            <img id="coffeecup" src="img/Coffee32.gif" alt="coffee cup with steam"/>
+            <h2>Control Pannel</h2>
+
+            <label for="add_module_select">Add Modules</label>
+            <select id="add_module_select" name="add_module_select">
+                <option value="oscillators">Oscillator Pannel</option>
+                <option value="lfo">LFO</option>
+                <option value="filter">Filter</option>
+                <option value="distortions">Distortion</option>
+            </select>
+            <button id="add_module" type="button">Add Module</button>
+            
+            <label for="remove_module_select">Remove Modules</label>
+            <select id="remove_module_select" name="remove_module_select">
+            </select>
+            <button id="remove_module" type="button">Remove Module</button>
+            
+            <button id="play" type="button">Play</button>
+            <button id="pause" type="button">Pause</button>
+        </div>
+    </body>
+    <footer> 
+        <script src="js/audio.js"></script>
+        <script src="js/add_LFO.js"></script>
+        <script src="js/add_filter.js"></script>
+        <script src="js/add_osc_core.js"></script>
+        <script src="js/add_distortion.js"></script>
+        <script src="osc_scope.js"></script>
+    </footer>
+</template>
+
+<script>
+import audio from audio.js
+impo
+</script>
+
+<style></style>
