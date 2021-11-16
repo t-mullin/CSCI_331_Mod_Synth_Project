@@ -372,8 +372,9 @@ removeButton.addEventListener('click', () => {
 });
 
 playButton.addEventListener('click', () => {
-    playButton.style.backgroundColor = "white";
+    playButton.style.backgroundColor = "#99e550";
     pauseButton.style.backgroundColor = "#444";
+    document.getElementById('control_pannel').style.backgroundColor = "#99e550";
     add_inputs();
     if (audioContext.state === 'suspended') {
         audioContext.resume();
@@ -381,8 +382,9 @@ playButton.addEventListener('click', () => {
 });
 
 pauseButton.addEventListener('click', () => {
-    pauseButton.style.backgroundColor = "white";
+    pauseButton.style.backgroundColor = "#99e550";
     playButton.style.backgroundColor = "#444";
+    document.getElementById('control_pannel').style.backgroundColor = "#444";
     audioContext.suspend();
 });
 

@@ -15,11 +15,14 @@ body {
 
 h2 {
     display: inline-block;
+    margin-left: 32px;
 }
 
 #coffeecup {
-    width: 32px;
-    height: 32px;
+    width: 64px;
+    height: 64px;
+    padding-top: 30px;
+    padding-left: 165px;
 }
 
 #module_rack {
@@ -32,6 +35,13 @@ h2 {
     grid-area:  control;
     height: 100vh;
     position:sticky;
+    overflow: hidden;
+    background-image: url("../img/controlpannel.svg");
+    background-size: contain;
+}
+
+#add_module_pannel, #remove_module_pannel {
+    margin-left: 32px;
 }
 
 canvas[id=oscilloscope] {
@@ -93,7 +103,10 @@ label {
 }
 
 #playButton, #pauseButton {
+    background-color: #444;
     width: 128px;
     height: 128px;
-    margin-top: 5px;
+    margin-top: 210%;
+    margin-right: -30px;
+    margin-left: 50px;
 }
