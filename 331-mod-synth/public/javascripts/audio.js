@@ -53,7 +53,7 @@ function add_osc_core() {
         </div>`
     );
     //add the module to the selector that selects the module for removal
-    remove_option.insertAdjacentHTML('beforeend', `<option value="oscillators">Oscillator Pannel ${numOsc}</option>`);
+    remove_option.insertAdjacentHTML('beforeend', `<option value="oscillators">Oscillator Panel ${numOsc}</option>`);
 
     //setting up the oscillatorNodes
     let oscSquare = audioContext.createOscillator();
@@ -267,7 +267,7 @@ function add_distortion_mod() {
         </div>`
     );
 
-    remove_option.insertAdjacentHTML('beforeend', `<option value="distortions">Distortion Pannel ${numDist}</option>`);
+    remove_option.insertAdjacentHTML('beforeend', `<option value="distortions">Distortion Panel ${numDist}</option>`);
     
     var distortion = audioContext.createWaveShaper();
     distortion.oversample = '4x';
