@@ -375,7 +375,8 @@ playButton.addEventListener('click', () => {
     playButton.style.backgroundColor = "#99e550";
     pauseButton.style.backgroundColor = "#444";
     document.getElementById('control_pannel').style.backgroundColor = "#99e550";
-    add_inputs();
+    //add_inputs();
+    setup();
     if (audioContext.state === 'suspended') {
         audioContext.resume();
     }
@@ -389,6 +390,22 @@ pauseButton.addEventListener('click', () => {
 });
 
 function setup() {
+    add_osc_core();
+    add_lfo();
+    add_vca();
+    add_filter();
+    rackArray[0].module[1].osc.connect(rackArray[3].module[0].filter);
+    rackArray[3].module[0].filter.connect(audioContext.destination);
+    rackArray[1].module[0].lfo.connect(rackArray[2].module[0].vca);
+    rackArray[2].module[0].vca.connect(rackArray[3].module[0].filter.frequency);
+
+    add_osc_core();
+    add_lfo();
+    add_vca();
+
+    rackArray[4].module[2].osc.connect(audioContext.destination);
+    rackArray[5].module[0].lfo.connect(rackArray[6].module[0].vca);
+    rackArray[6].module[0].vca.connect(rackArray[4].module[2].osc.frequency);
 
 }
 
