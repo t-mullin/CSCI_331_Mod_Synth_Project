@@ -17,6 +17,7 @@ let numDist = 0;
 
 const rackArray = [];
 const connectionArray = []; //module:  ie osc1, output: object member ie auduioContect.destination 
+const outputArray = [];
 //connectionArray[x].module.connect(connectionArray[x].output) maybe this will work
 
 //setup();
@@ -67,7 +68,18 @@ function add_inputs() {
     }
 }
 
-
+function update_outputs() {
+    let outputSel = document.querySelectorAll('select.output_select');
+    for (let i = 0; i < outputSel.length; i++) {
+        //console.log(outputSel[i]);
+        for(let k = outputSel[i].length; k > 0; k--) {
+            outputSel[i].remove(k);
+        }
+        for(let j = 0; j < outputArray.length; j++) {
+            outputSel[i].insertAdjacentHTML('beforeend', outputArray[j]);
+        }
+    }
+}
 
 /* add_osc_core: Adds the html containing the structure for a new oscillator module.
  *               The module contains a squarewave, sawtoothwave, and sinewave oscillators.
@@ -80,92 +92,54 @@ function add_osc_core() {
     rack.insertAdjacentHTML('beforeend',
         `<div id="osc_core_${numOsc}">
         <h3>Osc Core ${numOsc}</h3>
-        <label for="freq_square">Square Freq</label>
-        <input id="freq_square_${numOsc}" name="freq_square" type="range" min="0" max="440" value="0" step="10">
-        <label for="freq_saw">Saw Freq</label>
-        <input id="freq_saw_${numOsc}" name="freq_saw" type="range" min="0" max="440" value="0" step="10">
-        <label for="freq_sine">Sine Freq</label>
-        <input id="freq_sin_${numOsc}" name="freq_sine" type="range" min="0" max="440" value="0" step="10">
-        <label for="osc1_out">Osc1 Out</label>
-        <select class="output_select" id="osc_square_out_${numOsc}" name="osc1_out">
-            <option value=audioContext.destination>Speakers</option>
+        <label for="osc_freq">Osc Freq</label>
+        <input id="osc_freq_${numOsc}" name="osc_freq" type="range" min="0" max="880" value="0" step="10">
+        <label for="add_osc">Osc Type:</label>
+        <select id="sel_osc_${numOsc}" name="add_Osc">
+            <option value='square'>Square</option>
+            <option value='sine'>Sine</option>
+            <option value='sawtooth'>Sawtooth</option>
+            <option value='triangle'>Triangle</option>
         </select>
-        <label for="osc2_out">Osc2 Out</label>
-        <select class="output_select" id="osc_saw_out_${numOsc}" name="osc2_out">
-            <option value=audioContext.destination>Speakers</option>
-        </select>
-        <label for="osc3_out">Osc3 Out</label>
-        <select class="output_select" id="osc_sine_out_${numOsc}" name="osc3_out">
+        <label for="osc_out">Osc Out</label>
+        <select class="output_select" id="osc_out_${numOsc}" name="osc_out">
             <option value=audioContext.destination>Speakers</option>
         </select>
         </div>`
     );
     //add the module to the selector that selects the module for removal
-    remove_option.insertAdjacentHTML('beforeend', `<option value="oscillators">Oscillator Pannel ${numOsc}</option>`);
+    remove_option.insertAdjacentHTML('beforeend', `<option value="oscillator">Oscillator Panel ${numOsc}</option>`);
 
     //setting up the oscillatorNodes
-    let oscSquare = audioContext.createOscillator();
-    oscSquare.type = 'square';
-    oscSquare.frequency.value = 0;
-    let oscSaw = audioContext.createOscillator();
-    oscSaw.type = 'sawtooth';
-    oscSaw.frequency.value = 0;
-    let oscSine = audioContext.createOscillator();
-    oscSine.type = 'sine';
-    oscSine.frequency.value = 0;
+    let osc = audioContext.createOscillator();
+    osc.type = 'square';
+    osc.frequency.value = 0;
+    osc.start(0);
 
-    oscSquare.start(0);
-    oscSaw.start(0);
-    oscSine.start(0);
+    outputArray.push(`<option value=osc_core_${numOsc}.module>Osc ${numOsc}</option>`);
+    outputArray.push(`<option value=osc_core_${numOsc}.module.frequency>Osc ${numOsc} Frequency</option>`);
 
-    let outputSel = document.querySelectorAll('select.output_select');
-    //console.log(outputSel[0]);
-    for (let i = 0; i < outputSel.length; i++) {
-        //console.log(outputSel[i]);
-        outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSquare>Osc ${numOsc} Square </option>`);
-        outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSaw>Osc ${numOsc} Sawtooth </option>`);
-        outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSine>Osc ${numOsc} Sine </option>`);
-        outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSquare.frequency>Osc ${numOsc} Square Frequency</option>`);
-        outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSaw.frequency>Osc ${numOsc} Sawtooth Frequency</option>`);
-        outputSel[i].insertAdjacentHTML('beforeend', `<option value=osc_core_${numOsc}.oscSine.frequency>Osc ${numOsc} Sine Frequency</option>`);
-    }
+    update_outputs();
 
     //adding the oscillator module to the global list of modules
     //NOTE: may need to change this to include the input/output to make connecting modules
     //      easier
-    let oscillators = { id: `osc_core_${numOsc}`, module: [{osc: oscSquare, output: " "}, {osc: oscSaw, output: " "}, {osc: oscSine, output: " "}]};
-    rackArray.push(oscillators);
+    let oscillator = { id: `osc_core_${numOsc}`, module: osc, output: " "};
+    rackArray.push(oscillator);
 
     //setting up event listeners for the frequency sliders
-    document.getElementById(`freq_square_${numOsc}`).addEventListener('input', (e) => {
-        let newFreq = Number(e.target.value);
-        oscSquare.frequency.setValueAtTime(newFreq, audioContext.currentTime);
+    document.getElementById(`osc_freq_${numOsc}`).addEventListener('input', (e) => {
+        osc.frequency.setValueAtTime(Number(e.target.value), audioContext.currentTime);
     });
 
-    document.getElementById(`freq_saw_${numOsc}`).addEventListener('input', (e) => {
-        let newFreq = Number(e.target.value);
-        oscSaw.frequency.setValueAtTime(newFreq, audioContext.currentTime);
+    document.getElementById(`sel_osc_${numOsc}`).addEventListener('change', (e) => {
+        osc.type = e.target.value;
     });
 
-    document.getElementById(`freq_sin_${numOsc}`).addEventListener('input', (e) => {
-        let newFreq = Number(e.target.value);
-        oscSine.frequency.setValueAtTime(newFreq, audioContext.currentTime);
+    document.getElementById(`osc_out_${numOsc}`).addEventListener('change', (e) => {
+        oscillator.output = e.target.value;
     });
 
-    document.getElementById(`osc_square_out_${numOsc}`).addEventListener('change', (e) => {
-        let output = e.target.value;
-        oscillators.module[0].output = output;
-    });
-
-    document.getElementById(`osc_saw_out_${numOsc}`).addEventListener('change', (e) => {
-        let output = e.target.value;
-        oscillators.module[1].output = output;
-    });
-
-    document.getElementById(`osc_sine_out_${numOsc}`).addEventListener('change', (e) => {
-        let output = e.target.value;
-        oscillators.module[2].output = output;
-    });
 };
 
 function add_lfo() {
@@ -174,7 +148,8 @@ function add_lfo() {
     rack.insertAdjacentHTML('beforeend',
         `<div id="LFO_${numLFO}">
         <h3>LFO ${numLFO}</h3>
-        <input id="freq_lfo_${numLFO}" type="range" min="0" max="220" value="0" step="0.1">
+        <label for="lfo_freq">LFO Freq</label>
+        <input id="freq_lfo_${numLFO}" name="lfo_freq" type="range" min="0" max="220" value="0" step="0.1">
         <label for="add_LFO">LFO Type:</label>
         <select id="sel_lfo_${numLFO}" name="add_LFO">
             <option value='square'>Square</option>
@@ -183,7 +158,7 @@ function add_lfo() {
             <option value='triangle'>Triangle</option>
         </select>
         <label for="lfo_out">LFO Out</label>
-        <select class="output_select" id="lfo_out_${numOsc}" name="lfo_out">
+        <select class="output_select" id="lfo_out_${numLFO}" name="lfo_out">
             <option value=audioContext.destination>Speakers</option>
         </select>
         </div>`
@@ -196,30 +171,25 @@ function add_lfo() {
     lfo.type = 'square';
     lfo.frequency.value = 0;
     lfo.start(0);
+    
+    outputArray.push(`<option value=LFO_${numLFO}.module>LFO ${numLFO}</option>`);
+    outputArray.push(`<option value=LFO_${numLFO}.module.frequency>LFO ${numLFO} Frequency</option>`);
+    update_outputs();
 
-    let outputSel = document.querySelectorAll('select.output_select');
-    //console.log(outputSel[0]);
-    for (let i = 0; i < outputSel.length; i++) {
-        console.log(outputSel[i]);
-        outputSel[i].insertAdjacentHTML('beforeend', `<option value=LFO_${numLFO}.lfo>LFO ${numLFO}</option>`);
-    }
 
-    let lfos = { id: `LFO_${numLFO}`, module : [{lfo: lfo, output: ""}]};
+    let lfos = { id: `LFO_${numLFO}`, module : lfo, output: " "};
     rackArray.push(lfos);
 
     document.getElementById(`sel_lfo_${numLFO}`).addEventListener('change', (e) => {
-        let lfo_type = e.target.value;
-        lfo.type = lfo_type;
+        lfo.type = e.target.value;
     });
 
     document.getElementById(`freq_lfo_${numLFO}`).addEventListener('input', (e) => {
-        let newFreq = Number(e.target.value);
-        lfo.frequency.setValueAtTime(newFreq, audioContext.currentTime);
+        lfo.frequency.setValueAtTime(Number(e.target.value), audioContext.currentTime);
     });
 
-    document.getElementById(`lfo_out_${numOsc}`).addEventListener('change', (e) => {
-        let output = e.target.value;
-        lfos.module.output = output;
+    document.getElementById(`lfo_out_${numLFO}`).addEventListener('change', (e) => {
+        lfos.output = e.target.value;
     });
 
 };
@@ -239,6 +209,10 @@ function add_filter() {
             <option value='lowpass'>Low Pass</option>
             <option value='highpass'>High Pass</option>
         </select>
+        <label for="filter_out">Filter Out</label>
+        <select class="output_select" id="filter_out_${numFilter}" name="filter_out">
+            <option value=audioContext.destination>Speakers</option>
+        </select>
         </div>`
     );
 
@@ -247,27 +221,31 @@ function add_filter() {
 
     let filter = audioContext.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.frequency.value = 10000;
+    filter.frequency.value = 0;
     filter.Q.value = 0;
 
-    let filters = { id: `Filter_${numFilter}`, module: [{filter: filter, output: " "}]};
+    outputArray.push(`<option value=Filter_${numFilter}.module>Filter ${numFilter}</option>`);
+    outputArray.push(`<option value=Filter_${numFilter}.module.frequency>Filter ${numFilter} Cutoff</option>`);
+    outputArray.push(`<option value=Filter_${numFilter}.module.Q>Filter ${numFilter} Q</option>`);
+    update_outputs();
+
+    let filters = { id: `Filter_${numFilter}`, module: filter, output: " "};
     rackArray.push(filters);
 
     document.getElementById(`sel_filter_${numFilter}`).addEventListener('change', (e) => {
-        let filter_type = e.target.value;
-        filter.type = filter_type;
-        console.log(filter.type);
+        filter.type = e.target.value;
     });
 
     document.getElementById(`freq_cuttoff_${numFilter}`).addEventListener('input', (e) => {
-        let newFreq = Number(e.target.value);
-        filter.frequency.setValueAtTime(newFreq, audioContext.currentTime);
-        console.log(filter.frequency.value);
+        filter.frequency.setValueAtTime(Number(e.target.value), audioContext.currentTime);
     });
 
     document.getElementById(`filter_q_${numFilter}`).addEventListener('input', (e) => {
-        filter.Q.value = Number(e.target.value);
-        console.log(filter.Q.value);
+        filter.Q.setValueAtTime(Number(e.target.value), audioContext.currentTime);
+    });
+
+    document.getElementById(`filter_out_${numFilter}`).addEventListener('change', (e) => {
+        filters.output = e.target.value;
     });
 };
 
@@ -278,8 +256,8 @@ function add_vca() {
     <h3>VCA ${numVCA}</h3>
     <label for="gain">Gain</label>
     <input id="gain_${numVCA}" name="gain" type="range" min="0" max="2000" value="0" step="1">
-    <label for="gain_out">Gain out</label>
-    <select class="output_select" id="gain_out_${numVCA}" name="gain_out">
+    <label for="vca_out">VCA Out</label>
+    <select class="output_select" id="vca_out_${numVCA}" name="vca_out">
         <option value=audioContext.destination>Speakers</option>
     </select>
     </div>`
@@ -291,11 +269,19 @@ function add_vca() {
     let vca = audioContext.createGain();
     vca.gain.value = 0;
 
-    let vcas = {id: `vca_${numVCA}`, module: [{vca: vca, output: " "}]};
+    outputArray.push(`<option value=vca_${numVCA}.module>VCA ${numVCA}</option>`);
+    outputArray.push(`<option value=vca_${numVCA}.module.gain>VCA ${numVCA} Gain</option>`);
+    update_outputs();
+
+    let vcas = {id: `vca_${numVCA}`, module:  vca, output: " "};
     rackArray.push(vcas);
 
     document.getElementById(`gain_${numVCA}`).addEventListener('input', (e) => {
         vca.gain.value = Number(e.target.value);
+    });
+
+    document.getElementById(`vca_out_${numVCA}`).addEventListener('change', (e) => {
+        vcas.output = e.target.value;
     });
 }
 
@@ -305,7 +291,7 @@ addButton.addEventListener('click', () => {
     let selector = document.getElementById('add_module_select');
     //selects the correct add module function based on the selected option 
     switch (selector.value) {
-        case 'oscillators':
+        case 'oscillator':
             add_osc_core();
             break;
         case 'lfo':
@@ -336,30 +322,35 @@ removeButton.addEventListener('click', () => {
     let module_num = module_name.match(/(\d+)/);
     let moduleRemoved = false;
     switch (selector.value) {
-        case 'oscillators':
+        case 'oscillator':
             moduleRemoved = true;
             var module = document.getElementById(`osc_core_${module_num[0]}`);
             var index = rackArray.findIndex(({ id }) => id === `osc_core_${module_num[0]}`);
+            var modID = `osc_core_${module_num[0]}`;
             break;
         case 'lfo':
             moduleRemoved = true;
             var module = document.getElementById(`LFO_${module_num[0]}`);
             var index = rackArray.findIndex(({ id }) => id === `LFO_${module_num[0]}`);
+            var modID = `LFO_${module_num[0]}`;
             break;
         case 'filter':
             moduleRemoved = true;
             var module = document.getElementById(`Filter_${module_num[0]}`);
             var index = rackArray.findIndex(({ id }) => id === `Filter_${module_num[0]}`);
+            var modID = `Filter_${module_num[0]}`;
             break;
         case 'distortions':
             moduleRemoved = true;
             var module = document.getElementById(`distortion_${module_num[0]}`);
             var index = rackArray.findIndex(({ id }) => id === `distortion_${module_num[0]}`);
+            var modID = `distortion_${module_num[0]}`;
             break;
         case 'vca':
             moduleRemoved = true;
             var module = document.getElementById(`vca_${module_num[0]}`);
             var index = rackArray.findIndex(({ id }) => id === `vca_${module_num[0]}`);
+            var modID = `vca_${module_num[0]}`;
             break;
         default:
             console.log(selector.value);
@@ -368,7 +359,17 @@ removeButton.addEventListener('click', () => {
         rack.removeChild(module);
         selector.selectedOptions[0].parentNode.removeChild(selector.selectedOptions[0]);
         rackArray.splice(index, 1);
+        let outputIndex = [];
+        for(let i = 0; i < outputArray.length; i++) {
+            if(outputArray[i].toString().includes(modID)) {
+                outputIndex.push(i);
+            }
+        }
+        for(let i = outputIndex.length; i > 0; i--) {
+            outputArray.splice(outputIndex[i-1], 1);
+        }
     }
+    update_outputs();
 });
 
 playButton.addEventListener('click', () => {
