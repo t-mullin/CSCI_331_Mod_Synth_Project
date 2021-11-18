@@ -22,51 +22,54 @@ const outputArray = [];
 
 //setup();
 
-function add_inputs() {
+function connect_inputs() {
     for (const obj in rackArray) {
-        //console.log(`${obj}: ${rackArray[obj].id}`);
-        //if (rackArray[obj].id.match(/(osc_core_)/)) {
-            //console.log(rackArray[obj].id);
-            for(let osc = 0; osc < rackArray[obj]["module"].length; osc++) {
-                if(rackArray[obj]["module"][osc].output != " ") {
-                    //console.log(rackArray[obj]["module"][osc].output);
-                    if(rackArray[obj]["module"][osc].output === 'audioContext.destination') {
-                        rackArray[obj]["module"][osc].osc.connect(audioContext.destination);
-                    } else {
-                        let out = rackArray[obj]["module"][osc].output;
-                        let outputID = out.substring(0, out.indexOf('.'));
-                        let outputMod = rackArray.find((mod) => {return mod.id == outputID});
-                        
-                        console.log(out)
-                        console.log(outputMod.module[0]["osc"])
-                        console.log(out.substring(out.indexOf('.')+1))
-
-                        if(out.substring(out.indexOf('.')+1) === 'oscSquare') {
-                            rackArray[obj]["module"][osc]["osc"].connect(outputMod.module[0]["osc"]);
-                        } else if(out.substring(out.indexOf('.')+1) === 'oscSquare') {
-                            rackArray[obj]["module"][osc]["osc"].connect(outputMod.module[1]["osc"]);
-                        } else if(out.substring(out.indexOf('.')+1) === 'oscSquare') {
-                            rackArray[obj]["module"][osc]["osc"].connect(outputMod.module[2]["osc"]);
-                        } else if(out.substring(out.indexOf('.')+1) === 'oscSquare.frequency') {
-                            rackArray[obj]["module"][osc]["osc"].connect(outputMod.module[0]["osc"].frequency);
-                        } else if(out.substring(out.indexOf('.')+1) === 'oscSaw.frequency') {
-                            rackArray[obj]["module"][osc]["osc"].connect(outputMod.module[1]["osc"].frequency);
-                        } else if(out.substring(out.indexOf('.')+1) === 'oscSine.frequency') {
-                            rackArray[obj]["module"][osc]["osc"].connect(outputMod.module[2]["osc"].frequency);
-                        } 
-                    }
+        if(rackArray[obj].output === 'audioContext.destination') {
+            rackArray[obj].module.connect(audioContext.destination);
+        } else {
+            const outputs = rackArray[obj].output.split('.');
+            var index = rackArray.findIndex(({ id }) => id === outputs[0]);
+            if(outputs.length === 2) {
+                //console.log(rackArray[obj].module)
+                //console.log(rackArray[index].module)
+                rackArray[obj].module.connect(rackArray[index].module);
+            } else {
+                if(outputs[2] === 'frequency') {
+                    rackArray[obj].module.connect(rackArray[index].module.frequency);
+                } else if(outputs[2] === 'gain') {
+                    rackArray[obj].module.connect(rackArray[index].module.gain);
+                } else if(outputs[2] === 'Q') {
+                    rackArray[obj].module.connect(rackArray[index].module.Q);
                 }
             }
-        //} else if (rackArray[obj].id.match(/(LFO_)/)) {
-
-
-        //} else if (rackArray[obj].id.match(/(Filter_)/)) {
-
-        //} else if (rackArray[obj].id.match(/(distortion_)/)) {
-
-        //}
+        }
     }
 }
+
+function disconnect_inputs() {
+    for (const obj in rackArray) {
+        if(rackArray[obj].output === 'audioContext.destination') {
+            rackArray[obj].module.disconnect(audioContext.destination);
+        } else {
+            const outputs = rackArray[obj].output.split('.');
+            var index = rackArray.findIndex(({ id }) => id === outputs[0]);
+            if(outputs.length === 2) {
+                //console.log(rackArray[obj].module)
+                //console.log(rackArray[index].module)
+                rackArray[obj].module.disconnect(rackArray[index].module);
+            } else {
+                if(outputs[2] === 'frequency') {
+                    rackArray[obj].module.disconnect(rackArray[index].module.frequency);
+                } else if(outputs[2] === 'gain') {
+                    rackArray[obj].module.disconnect(rackArray[index].module.gain);
+                } else if(outputs[2] === 'Q') {
+                    rackArray[obj].module.disconnect(rackArray[index].module.Q);
+                }
+            }
+        }
+    }
+}
+
 
 function update_outputs() {
     let outputSel = document.querySelectorAll('select.output_select');
@@ -313,6 +316,8 @@ addButton.addEventListener('click', () => {
 
 //sets up an event listener on the removeButton
 removeButton.addEventListener('click', () => {
+    audioContext.suspend();
+    disconnect_inputs();
     //gets what module that the end user wants to remove
     let selector = document.getElementById('remove_module_select');
     //selects the correct remove module function based on the selected option
@@ -376,8 +381,8 @@ playButton.addEventListener('click', () => {
     playButton.style.backgroundColor = "#99e550";
     pauseButton.style.backgroundColor = "#444";
     document.getElementById('control_pannel').style.backgroundColor = "#99e550";
-    //add_inputs();
-    setup();
+    connect_inputs();
+    //setup();
     if (audioContext.state === 'suspended') {
         audioContext.resume();
     }
@@ -388,6 +393,7 @@ pauseButton.addEventListener('click', () => {
     playButton.style.backgroundColor = "#444";
     document.getElementById('control_pannel').style.backgroundColor = "#444";
     audioContext.suspend();
+    disconnect_inputs();
 });
 
 function setup() {
