@@ -85,6 +85,7 @@ div[id^=distortion] {
     height: 350px;
     width: 175px;
     background-color: yellowgreen;
+    background-image: url("../img/distmod.svg");
 }
 
 div[id^=vca] {
