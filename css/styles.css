@@ -31,7 +31,7 @@ h2 {
     overflow-y: auto;
 }
 
-#control_pannel {
+#control_panel {
     grid-area:  control;
     height: 100vh;
     position:sticky;
@@ -40,7 +40,7 @@ h2 {
     background-size: contain;
 }
 
-#add_module_pannel, #remove_module_pannel {
+#add_module_panel, #remove_module_panel {
     margin-left: 32px;
 }
 
@@ -69,6 +69,7 @@ div[id^=LFO] {
     height: 350px;
     width: 175px;
     background-color: blueviolet;
+    background-image: url("../img/lfomod.svg");
 }
 
 div[id^=Filter] {
@@ -77,6 +78,7 @@ div[id^=Filter] {
     height: 350px;
     width: 175px;
     background-color: firebrick;
+    background-image: url("../img/filtermod.svg");
 }
 
 div[id^=distortion] {

@@ -16,11 +16,7 @@ let numVCA = 0;
 let numDist = 0;
 
 const rackArray = [];
-const connectionArray = []; //module:  ie osc1, output: object member ie auduioContect.destination 
 const outputArray = [];
-//connectionArray[x].module.connect(connectionArray[x].output) maybe this will work
-
-//setup();
 
 function connect_inputs() {
     for (const obj in rackArray) {
@@ -30,8 +26,6 @@ function connect_inputs() {
             const outputs = rackArray[obj].output.split('.');
             var index = rackArray.findIndex(({ id }) => id === outputs[0]);
             if(outputs.length === 2) {
-                //console.log(rackArray[obj].module)
-                //console.log(rackArray[index].module)
                 rackArray[obj].module.connect(rackArray[index].module);
             } else {
                 if(outputs[2] === 'frequency') {
@@ -54,8 +48,6 @@ function disconnect_inputs() {
             const outputs = rackArray[obj].output.split('.');
             var index = rackArray.findIndex(({ id }) => id === outputs[0]);
             if(outputs.length === 2) {
-                //console.log(rackArray[obj].module)
-                //console.log(rackArray[index].module)
                 rackArray[obj].module.disconnect(rackArray[index].module);
             } else {
                 if(outputs[2] === 'frequency') {
@@ -69,7 +61,6 @@ function disconnect_inputs() {
         }
     }
 }
-
 
 function update_outputs() {
     let outputSel = document.querySelectorAll('select.output_select');
@@ -111,7 +102,7 @@ function add_osc_core() {
         </div>`
     );
     //add the module to the selector that selects the module for removal
-    remove_option.insertAdjacentHTML('beforeend', `<option value="oscillator">Oscillator Panel ${numOsc}</option>`);
+    remove_option.insertAdjacentHTML('beforeend', `<option value="oscillator">Oscillator ${numOsc}</option>`);
 
     //setting up the oscillatorNodes
     let osc = audioContext.createOscillator();
@@ -178,7 +169,6 @@ function add_lfo() {
     outputArray.push(`<option value=LFO_${numLFO}.module>LFO ${numLFO}</option>`);
     outputArray.push(`<option value=LFO_${numLFO}.module.frequency>LFO ${numLFO} Frequency</option>`);
     update_outputs();
-
 
     let lfos = { id: `LFO_${numLFO}`, module : lfo, output: " "};
     rackArray.push(lfos);
@@ -255,15 +245,15 @@ function add_filter() {
 function add_vca() {
     numVCA++;
     rack.insertAdjacentHTML('beforeend',
-    `<div id="vca_${numVCA}">
-    <h3>VCA ${numVCA}</h3>
-    <label for="gain">Gain</label>
-    <input id="gain_${numVCA}" name="gain" type="range" min="0" max="2000" value="0" step="1">
-    <label for="vca_out">VCA Out</label>
-    <select class="output_select" id="vca_out_${numVCA}" name="vca_out">
-        <option value=audioContext.destination>Speakers</option>
-    </select>
-    </div>`
+        `<div id="vca_${numVCA}">
+        <h3>VCA ${numVCA}</h3>
+        <label for="gain">Gain</label>
+        <input id="gain_${numVCA}" name="gain" type="range" min="0" max="2000" value="0" step="1">
+        <label for="vca_out">VCA Out</label>
+        <select class="output_select" id="vca_out_${numVCA}" name="vca_out">
+            <option value=audioContext.destination>Speakers</option>
+        </select>
+        </div>`
     );
 
     //add the module to the selector that selects the module for removal
@@ -276,7 +266,7 @@ function add_vca() {
     outputArray.push(`<option value=vca_${numVCA}.module.gain>VCA ${numVCA} Gain</option>`);
     update_outputs();
 
-    let vcas = {id: `vca_${numVCA}`, module:  vca, output: " "};
+    let vcas = { id: `vca_${numVCA}`, module: vca, output: " " };
     rackArray.push(vcas);
 
     document.getElementById(`gain_${numVCA}`).addEventListener('input', (e) => {
@@ -287,6 +277,58 @@ function add_vca() {
         vcas.output = e.target.value;
     });
 }
+
+function add_distortion_mod() {
+    numDist++;
+
+    rack.insertAdjacentHTML('beforeend',
+        `<div id="distortion_${numDist}">
+        <label id="dist_ratio_${numDist}" for="dist_ratio_${numDist}">Distortion</label>
+        <input id="dist_ratio_${numDist}" type="range" min="0" max="440" value="0" step="10">
+        <label for="dist_out">Distortion Out</label>
+        <select class="output_select" id="dist_out_${numDist}" name="dist_out">
+            <option value=audioContext.destination>Speakers</option>
+        </select>
+        </div>`
+    );
+
+    remove_option.insertAdjacentHTML('beforeend', `<option value="distortions">Distortion ${numDist}</option>`);
+
+    var distortion = audioContext.createWaveShaper();
+    distortion.oversample = '4x';
+
+    outputArray.push(`<option value=distortion_${numDist}.module>Distortion ${numDist}</option>`);
+    update_outputs();
+
+    let distortions = { id: `distortion_${numDist}`, module: distortion, output: " " }
+    rackArray.push(distortions)
+
+    let amount;
+    document.getElementById(`distortion_${numDist}`).addEventListener('input', (e) => {
+        amount = Number(e.target.value)
+        distortion.curve = distortion_curve(amount);
+        //console.log(distortion.curve);
+    });
+
+    document.getElementById(`dist_out_${numDist}`).addEventListener('change', (e) => {
+        distortions.output = e.target.value;
+    });
+}
+
+function distortion_curve(amount) {
+    var k = typeof amount === 'number' ? amount : 0,
+        n_samples = 44100,
+        curve = new Float32Array(n_samples),
+        degree = Math.PI / 180,
+        i = 0,
+        x;
+    for (; i < n_samples; ++i) {
+        x = i * 2 / n_samples - 1;
+        curve[i] = (3 + k) * x * 20 * degree / (Math.PI + k * Math.abs(x));
+    }
+
+    return curve;
+};
 
 //sets up an event listener on the addButton
 addButton.addEventListener('click', () => {
@@ -380,9 +422,8 @@ removeButton.addEventListener('click', () => {
 playButton.addEventListener('click', () => {
     playButton.style.backgroundColor = "#99e550";
     pauseButton.style.backgroundColor = "#444";
-    document.getElementById('control_pannel').style.backgroundColor = "#99e550";
+    document.getElementById('control_panel').style.backgroundColor = "#99e550";
     connect_inputs();
-    //setup();
     if (audioContext.state === 'suspended') {
         audioContext.resume();
     }
@@ -391,76 +432,7 @@ playButton.addEventListener('click', () => {
 pauseButton.addEventListener('click', () => {
     pauseButton.style.backgroundColor = "#99e550";
     playButton.style.backgroundColor = "#444";
-    document.getElementById('control_pannel').style.backgroundColor = "#444";
+    document.getElementById('control_panel').style.backgroundColor = "#444";
     audioContext.suspend();
     disconnect_inputs();
 });
-
-function setup() {
-    add_osc_core();
-    add_lfo();
-    add_vca();
-    add_filter();
-    rackArray[0].module[1].osc.connect(rackArray[3].module[0].filter);
-    rackArray[3].module[0].filter.connect(audioContext.destination);
-    rackArray[1].module[0].lfo.connect(rackArray[2].module[0].vca);
-    rackArray[2].module[0].vca.connect(rackArray[3].module[0].filter.frequency);
-
-    add_osc_core();
-    add_lfo();
-    add_vca();
-
-    rackArray[4].module[2].osc.connect(audioContext.destination);
-    rackArray[5].module[0].lfo.connect(rackArray[6].module[0].vca);
-    rackArray[6].module[0].vca.connect(rackArray[4].module[2].osc.frequency);
-
-}
-
-function add_distortion_mod() {
-    numDist++;
-
-    rack.insertAdjacentHTML('beforeend',
-        `<div id="distortion_${numDist}">
-        <label id="dist_ratio_${numDist}" for="dist_ratio_${numDist}">Distortion</label>
-        <input id="dist_ratio_${numDist}" type="range" min="0" max="440" value="0" step="10">
-        </div>`
-    );
-
-    remove_option.insertAdjacentHTML('beforeend', `<option value="distortions">Distortion Pannel ${numDist}</option>`);
-
-    var distortion = audioContext.createWaveShaper();
-    distortion.oversample = '4x';
-
-    let distortions = { id: `distortion_${numDist}`, dist: distortion }
-    rackArray.push(distortions)
-
-    let amount;
-    document.getElementById(`distortion_${numDist}`).addEventListener('input', (e) => {
-        amount = Number(e.target.value)
-        distortion.curve = distortion_curve(amount);
-        console.log(distortion.curve);
-    });
-
-    //const oscSaw = audioContext.createOscillator();
-    //oscSaw.type = 'sawtooth';
-    //oscSaw.frequency.value = 440;
-    //console.log(distortion.curve);
-    //oscSaw.start(0);
-    //oscSaw.connect(distortion);
-    //distortion.connect(audioContext.destination);
-}
-
-function distortion_curve(amount) {
-    var k = typeof amount === 'number' ? amount : 0,
-        n_samples = 44100,
-        curve = new Float32Array(n_samples),
-        degree = Math.PI / 180,
-        i = 0,
-        x;
-    for (; i < n_samples; ++i) {
-        x = i * 2 / n_samples - 1;
-        curve[i] = (3 + k) * x * 20 * degree / (Math.PI + k * Math.abs(x));
-    }
-
-    return curve;
-};
