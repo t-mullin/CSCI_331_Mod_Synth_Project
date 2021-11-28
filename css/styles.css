@@ -96,6 +96,7 @@ div[id^=vca] {
     height: 350px;
     width: 175px;
     background-color: deeppink;
+    background-image: url("../img/vcamod.svg");
 }
 
 label {

@@ -359,7 +359,6 @@ addButton.addEventListener('click', () => {
 //sets up an event listener on the removeButton
 removeButton.addEventListener('click', () => {
     audioContext.suspend();
-    disconnect_inputs();
     //gets what module that the end user wants to remove
     let selector = document.getElementById('remove_module_select');
     //selects the correct remove module function based on the selected option
