@@ -22,11 +22,11 @@ connection.once('open', () => {
 })
 
 // Route files
-const exercisesRouter = require('./routes/exercises');
+const presetsRouter = require('./routes/presets');
 const usersRouter = require('./routes/users');
 
 // Use files
-app.use('/exercises', exercisesRouter);
+app.use('/presets', presetsRouter);
 app.use('/users', usersRouter);
 
 // Start server
