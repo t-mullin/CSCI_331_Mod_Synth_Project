@@ -8,6 +8,8 @@ var indexRouter = require('./routes/index');
 
 var app = express();
 
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -20,16 +22,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 
+const MongoClient = require("mongodb").MongoClient;
+
+var url = "mongodb+srv://dbUser:dbPass@presets-cluster.h4at5.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+
+exports.getMongo = async function() {
+    const client = await MongoClient.connect(url, {
+        useNewUrlparser: true,
+        useUnifiedTopology: true,
+    });
+
+    //const db = client.db("myFirstDatabase");
+    console.log("db");
+    client.db("myFirstDatabase").collection('presets').find( { 'preset name': '1' } ).toArray(function(err, res) {
+        console.log(res);
+    });
+    //console.log(presets);
+    client.close();
+};
 
 module.exports = app;
 
-var MongoClient = require("mongodb").MongoClient;
-var url = "mongodb+srv://dbUser:dbPass@cluster0.h4at5.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
-
-
-MongoClient.connect(url, async function (err, client) {
-    var db= client.db('PresetDB');
-    if (err) throw err;
-    let presetsArr = await db.collection("Presets").find( { } ).toArray();
-    client.close();
-});
