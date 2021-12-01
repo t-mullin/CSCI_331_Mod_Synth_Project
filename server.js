@@ -23,5 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 var indexRouter = require('./routes/index');
+var dbRouter = require('./routes/db');
 
 app.use('/', indexRouter);
+app.use('/fetch', dbRouter);
