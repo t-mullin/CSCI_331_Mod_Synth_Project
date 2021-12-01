@@ -1,0 +1,85 @@
+html {
+    margin: auto;
+}
+
+body {
+    margin: 0px;
+    font-family: 'Press Start 2P', cursive;
+    color: #FFF;
+    background-color: #444;
+    display: grid;
+    grid-template-areas: 'rack control';
+    grid-template-columns: auto 400px;
+
+}
+
+h2 {
+    display: inline-block;
+}
+
+#coffeecup {
+    width: 32px;
+    height: 32px;
+}
+
+#module_rack {
+    grid-area: rack;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+#control_pannel {
+    grid-area:  control;
+    height: 100vh;
+    position:sticky;
+}
+
+canvas[id=oscilloscope] {
+    height: 100px;
+    width: 100px;
+}
+
+div[id^=osc_core] {
+    display: block;
+    float: left;
+    height: 350px;
+    width: 175px;
+    background-color: darkolivegreen;
+}
+
+input[id^=freq_]{
+    display: block;
+    float: none;
+    margin: 10px 7px;
+}
+
+div[id^=LFO] {
+    display: block;
+    float: left;
+    height: 350px;
+    width: 175px;
+    background-color: blueviolet;
+}
+
+div[id^=Filter] {
+    display: block;
+    float: left;
+    height: 350px;
+    width: 175px;
+    background-color: firebrick;
+}
+
+div[id^=distortion] {
+    display: block;
+    float: left;
+    height: 350px;
+    width: 175px;
+    background-color: yellowgreen;
+}
+
+label {
+    width: 100%;
+    margin: 5px 5px;
+    font-size: 12px;
+    display: block;
+}
