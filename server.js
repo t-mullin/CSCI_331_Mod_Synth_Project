@@ -3,12 +3,6 @@ var express = require('express');
 var path = require('path');
 var app = express();
 
-var port = 8000;
-
-app.listen(port, () => {
-   console.log(`Server listening on port ${port}`);
-});
-
 
 const mongoose = require('mongoose');
 mongoose.connect('mongodb+srv://dbUser:dbPass@presets-cluster.h4at5.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', () => {
@@ -27,3 +21,9 @@ var dbRouter = require('./routes/db');
 
 app.use('/', indexRouter);
 app.use('/fetch', dbRouter);
+
+var port = 3000;
+
+app.listen(process.env.PORT || 3000, () => {
+   console.log(`Server listening on port ${port}`);
+});
