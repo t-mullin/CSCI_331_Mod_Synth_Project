@@ -9,21 +9,16 @@ mongoose.connect('mongodb+srv://dbUser:dbPass@presets-cluster.h4at5.mongodb.net/
    console.log('Connected to Mongo DB Successfully!');
 });
 
-
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'html');
 
-app.use(express.static(path.join(__dirname, 'css')));
-app.use(express.static(path.join(__dirname, 'js')));
-app.use(express.static(path.join(__dirname, 'img')));
-app.use(express.static('index.html'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 var indexRouter = require('./routes/index');
-var dbRouter = require('./routes/db');
 
 app.use('/', indexRouter);
-app.use('/fetch', dbRouter);
 
 var port = 3000;
 
