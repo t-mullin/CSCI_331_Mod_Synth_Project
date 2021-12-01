@@ -13,7 +13,10 @@ mongoose.connect('mongodb+srv://dbUser:dbPass@presets-cluster.h4at5.mongodb.net/
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'css')));
+app.use(express.static(path.join(__dirname, 'js')));
+app.use(express.static(path.join(__dirname, 'img')));
+app.use(express.static('index.html'));
 app.use(express.json());
 
 var indexRouter = require('./routes/index');
