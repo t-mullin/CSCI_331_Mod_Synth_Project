@@ -40,7 +40,7 @@ h2 {
     background-size: contain;
 }
 
-#add_module_panel, #remove_module_panel {
+#add_module_panel, #remove_module_panel, #instructions {
     margin-left: 32px;
 }
 
